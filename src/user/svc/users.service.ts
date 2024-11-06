@@ -4,6 +4,9 @@ import { User } from '../entity/user.interface';
 import { UserRepository } from '../repository/user.repository.interface';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdatePasswordDto } from '../dto/update-password.dto';
+import { InvalidIDException } from '../../error/invalid.id.error';
+import { UserNotFoundException } from '../error/user.not.found.error';
+import { IncorrectOldPasswordException } from '../error/incorrect.old.password.error';
 
 @Injectable()
 export class UsersService {
@@ -41,13 +44,13 @@ export class UsersService {
     this.validateId(id);
     const user = this.findUser(id);
     if (user.password !== updatePasswordDto.oldPassword)
-      throw new Error('Incorrect old password');
+      throw new IncorrectOldPasswordException();
 
     const updatedUser = this.userRepository.update(id, {
       password: updatePasswordDto.newPassword,
     });
     if (!updatedUser) {
-      throw new Error('User not found');
+      throw new UserNotFoundException();
     }
     return this.hidePassword(updatedUser);
   }
@@ -56,20 +59,20 @@ export class UsersService {
     this.validateId(id);
     const success = this.userRepository.delete(id);
     if (!success) {
-      throw new Error('User not found');
+      throw new UserNotFoundException();
     }
   }
 
   private validateId(id: string) {
     if (!isUuid(id)) {
-      throw new Error('Invalid UUID');
+      throw new InvalidIDException();
     }
   }
 
   private findUser(id: string) {
     const user = this.userRepository.findById(id);
     if (!user) {
-      throw new Error('User not found');
+      throw new UserNotFoundException();
     }
     return user;
   }

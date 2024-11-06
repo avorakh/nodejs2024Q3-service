@@ -9,10 +9,14 @@ import {
   HttpException,
   HttpStatus,
   HttpCode,
+  Logger,
 } from '@nestjs/common';
+
 import { UsersService } from '../svc/users.service';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdatePasswordDto } from '../dto/update-password.dto';
+
+const logger = new Logger('UsersController');
 
 @Controller('user')
 export class UsersController {
@@ -28,10 +32,7 @@ export class UsersController {
     try {
       return this.usersService.findById(id);
     } catch (error) {
-      if (error.message === 'Invalid UUID') {
-        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-      }
-      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      this.handleException(error);
     }
   }
 
@@ -54,16 +55,7 @@ export class UsersController {
     try {
       return this.usersService.updatePassword(id, updatePasswordDto);
     } catch (error) {
-      console.log(error);
-      console.log(id);
-      console.log(updatePasswordDto);
-      if (error.message === 'Invalid UUID') {
-        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-      }
-      if (error.message === 'Incorrect old password') {
-        throw new HttpException(error.message, HttpStatus.FORBIDDEN);
-      }
-      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      this.handleException(error);
     }
   }
 
@@ -73,10 +65,18 @@ export class UsersController {
     try {
       this.usersService.delete(id);
     } catch (error) {
-      if (error.message === 'Invalid UUID') {
-        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-      }
-      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      this.handleException(error);
     }
+  }
+
+  private handleException(error) {
+    if (error instanceof HttpException) {
+      throw error;
+    }
+    logger.error(`An unexpected error occurred:[${error.message}]`);
+    throw new HttpException(
+      'Internal server error',
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
   }
 }

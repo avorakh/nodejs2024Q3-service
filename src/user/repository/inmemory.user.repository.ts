@@ -21,7 +21,9 @@ export class InMemoryUserRepository implements UserRepository {
 
   update(id: string, user: Partial<User>): User | undefined {
     const existingUser = this.users.get(id);
-    if (!existingUser) return undefined;
+    if (!existingUser) {
+      return undefined;
+    }
 
     const updatedUser = {
       ...existingUser,

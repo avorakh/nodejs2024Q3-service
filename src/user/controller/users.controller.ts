@@ -30,12 +30,6 @@ export class UsersController {
 
   @Post()
   createUser(@Body() createUserDto: CreateUserDto) {
-    // if (!createUserDto.login || !createUserDto.password) {
-    //   throw new HttpException(
-    //     'Missing required fields',
-    //     HttpStatus.BAD_REQUEST,
-    //   );
-    // }
     return this.usersService.create(createUserDto);
   }
 

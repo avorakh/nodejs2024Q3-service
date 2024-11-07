@@ -59,10 +59,10 @@ export class ArtistService {
   }
 
   private findArtist(id: string): Artist {
-    const user = this.artistRepository.findById(id);
-    if (!user) {
+    const foundArtist = this.artistRepository.findById(id);
+    if (!foundArtist) {
       throw new ArtistNotFoundException();
     }
-    return user;
+    return foundArtist;
   }
 }

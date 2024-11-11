@@ -18,31 +18,28 @@ export class AlbumController {
   constructor(private readonly albumService: AlbumService) {}
 
   @Get()
-  getAllUsers() {
+  getAllAlbums() {
     return this.albumService.findAll();
   }
 
   @Get(':id')
-  getUserById(@Param('id') id: string) {
+  getAlbumById(@Param('id') id: string) {
     return this.albumService.findById(id);
   }
 
   @Post()
-  createUser(@Body() createAlbumDto: AlbumDto) {
+  createAlbum(@Body() createAlbumDto: AlbumDto) {
     return this.albumService.create(createAlbumDto);
   }
 
   @Put(':id')
-  updateUserPassword(
-    @Param('id') id: string,
-    @Body() updateAlbumDto: AlbumDto,
-  ) {
+  updateAlbum(@Param('id') id: string, @Body() updateAlbumDto: AlbumDto) {
     return this.albumService.update(id, updateAlbumDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteUser(@Param('id') id: string) {
+  deleteAlbum(@Param('id') id: string) {
     this.albumService.delete(id);
   }
 }

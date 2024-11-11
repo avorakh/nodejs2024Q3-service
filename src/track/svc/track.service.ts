@@ -66,6 +66,16 @@ export class TrackService {
     });
   }
 
+  hideArtistId(artistId: string): void {
+    const foundTracks = this.findAll().filter(
+      (foundTrack) => foundTrack.artistId === artistId,
+    );
+    foundTracks.forEach((foundTrack) => {
+      foundTrack.artistId = null;
+      this.trackRepository.update(foundTrack.id, foundTrack);
+    });
+  }
+
   private validateId(id: string) {
     if (!isUuid(id)) {
       throw new InvalidIDException();

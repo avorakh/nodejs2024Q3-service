@@ -57,6 +57,16 @@ export class AlbumService {
     this.trackService.hideAlbumId(id);
   }
 
+  hideArtistId(artistId: string): void {
+    const foundAlbums = this.findAll().filter(
+      (foundAlbum) => foundAlbum.artistId === artistId,
+    );
+    foundAlbums.forEach((foundAlbum) => {
+      foundAlbum.artistId = null;
+      this.albumRepository.update(foundAlbum.id, foundAlbum);
+    });
+  }
+
   private validateId(id: string) {
     if (!isUuid(id)) {
       throw new InvalidIDException();

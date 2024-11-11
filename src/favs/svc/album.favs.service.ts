@@ -5,7 +5,7 @@ import { AlbumRepository } from '../../album/repository/album.repository';
 import { FavoriteIdRepository } from '../repository/favs.repository';
 import { FavoriteItemNotFoundException } from '../error/favirite.not.found.error';
 import { InvalidIDException } from '../../error/invalid.id.error';
-
+import { HttpStatus } from '@nestjs/common';
 import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -27,13 +27,24 @@ export class AlbumFavoritesService implements FavoritesServiceInterface<Album> {
 
   addToFavorites(id: string): void {
     this.validateId(id);
-    this.findAlbum(id);
+    const foundAlbum = this.albumRepository.findById(id);
+
+    if (!foundAlbum) {
+      throw new FavoriteItemNotFoundException('Album not found');
+    }
     this.albumFavoriteIdRepository.create(id);
   }
 
   deleteFromFavorites(id: string): void {
     this.validateId(id);
-    this.findAlbum(id);
+    const foundAlbum = this.albumRepository.findById(id);
+
+    if (!foundAlbum) {
+      throw new FavoriteItemNotFoundException(
+        'Album not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
     this.albumFavoriteIdRepository.delete(id);
   }
 
@@ -41,15 +52,5 @@ export class AlbumFavoritesService implements FavoritesServiceInterface<Album> {
     if (!isUuid(id)) {
       throw new InvalidIDException();
     }
-  }
-
-  private findAlbum(id: string): Album {
-    const foundAlbum = this.albumRepository.findById(id);
-
-    if (!foundAlbum) {
-      throw new FavoriteItemNotFoundException('Favorite');
-    }
-
-    return foundAlbum;
   }
 }

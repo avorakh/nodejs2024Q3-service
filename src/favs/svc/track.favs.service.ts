@@ -6,6 +6,7 @@ import { FavoriteIdRepository } from '../repository/favs.repository';
 import { FavoriteItemNotFoundException } from '../error/favirite.not.found.error';
 import { InvalidIDException } from '../../error/invalid.id.error';
 import { Inject, Injectable } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 
 @Injectable()
 export class TrackFavoritesService implements FavoritesServiceInterface<Track> {
@@ -26,13 +27,24 @@ export class TrackFavoritesService implements FavoritesServiceInterface<Track> {
 
   addToFavorites(id: string): void {
     this.validateId(id);
-    this.findTrack(id);
+    const foundTrack = this.trackRepository.findById(id);
+
+    if (!foundTrack) {
+      throw new FavoriteItemNotFoundException('Track not found');
+    }
     this.trackFavoriteIdRepository.create(id);
   }
 
   deleteFromFavorites(id: string): void {
     this.validateId(id);
-    this.findTrack(id);
+    const foundTrack = this.trackRepository.findById(id);
+
+    if (!foundTrack) {
+      throw new FavoriteItemNotFoundException(
+        'Track not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
     this.trackFavoriteIdRepository.delete(id);
   }
 
@@ -40,15 +52,5 @@ export class TrackFavoritesService implements FavoritesServiceInterface<Track> {
     if (!isUuid(id)) {
       throw new InvalidIDException();
     }
-  }
-
-  private findTrack(id: string): Track {
-    const foundTrack = this.trackRepository.findById(id);
-
-    if (!foundTrack) {
-      throw new FavoriteItemNotFoundException('Favorite');
-    }
-
-    return foundTrack;
   }
 }

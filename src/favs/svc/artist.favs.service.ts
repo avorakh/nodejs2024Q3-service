@@ -5,7 +5,7 @@ import { ArtistRepository } from '../../artist/repository/artist.repository';
 import { FavoriteIdRepository } from '../repository/favs.repository';
 import { FavoriteItemNotFoundException } from '../error/favirite.not.found.error';
 import { InvalidIDException } from '../../error/invalid.id.error';
-
+import { HttpStatus } from '@nestjs/common';
 import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -29,13 +29,24 @@ export class ArtistFavoritesService
 
   addToFavorites(id: string): void {
     this.validateId(id);
-    this.findArtist(id);
+    const foundArtist = this.artistRepository.findById(id);
+
+    if (!foundArtist) {
+      throw new FavoriteItemNotFoundException('Artist not found');
+    }
     this.artistTFavoriteIdRepository.create(id);
   }
 
   deleteFromFavorites(id: string): void {
     this.validateId(id);
-    this.findArtist(id);
+    const foundArtist = this.artistRepository.findById(id);
+
+    if (!foundArtist) {
+      throw new FavoriteItemNotFoundException(
+        'Artist not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
     this.artistTFavoriteIdRepository.delete(id);
   }
 
@@ -43,15 +54,5 @@ export class ArtistFavoritesService
     if (!isUuid(id)) {
       throw new InvalidIDException();
     }
-  }
-
-  private findArtist(id: string): Artist {
-    const foundArtist = this.artistRepository.findById(id);
-
-    if (!foundArtist) {
-      throw new FavoriteItemNotFoundException('Favorite');
-    }
-
-    return foundArtist;
   }
 }

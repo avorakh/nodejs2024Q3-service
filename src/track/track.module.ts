@@ -4,14 +4,19 @@ import { TrackService } from './svc/track.service';
 import { InMemoryTrackRepository } from './repository/inmemory.track.repository';
 
 @Module({
-  controllers: [TrackController],
   providers: [
-    TrackService,
     {
       provide: 'TrackRepository',
       useClass: InMemoryTrackRepository,
     },
   ],
   exports: ['TrackRepository'],
+})
+export class TrackRepositoryModule {}
+
+@Module({
+  imports: [TrackRepositoryModule],
+  controllers: [TrackController],
+  providers: [TrackService],
 })
 export class TrackModule {}

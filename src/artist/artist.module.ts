@@ -4,14 +4,19 @@ import { ArtistService } from './svc/artist.service';
 import { InMemoryArtistRepository } from './repository/inmemory.artist.repository';
 
 @Module({
-  controllers: [ArtistController],
   providers: [
-    ArtistService,
     {
       provide: 'ArtistRepository',
       useClass: InMemoryArtistRepository,
     },
   ],
   exports: ['ArtistRepository'],
+})
+export class ArtistRepositoryModule {}
+
+@Module({
+  imports: [ArtistRepositoryModule],
+  controllers: [ArtistController],
+  providers: [ArtistService],
 })
 export class ArtistModule {}

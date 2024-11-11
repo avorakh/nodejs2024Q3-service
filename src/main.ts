@@ -21,6 +21,12 @@ async function bootstrap() {
 
   app.useGlobalFilters(new ServiceHttpExceptionFilter());
 
+  app.enableCors({
+    origin: '*',
+    methods: '*',
+    credentials: false,
+  });
+
   await app.listen(WEB_SERVER_PORT);
   logger.log(`Server is running on port: ${WEB_SERVER_PORT}`);
 }

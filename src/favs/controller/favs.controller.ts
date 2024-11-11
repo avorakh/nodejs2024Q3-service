@@ -47,7 +47,7 @@ export class FavoriteController {
   @Post('album/:id')
   addAlbumToFavorites(@Param('id') albumId: string) {
     this.albumFavoritesService.addToFavorites(albumId);
-    return { artistId: albumId };
+    return { albumId: albumId };
   }
 
   @Delete('album/:id')
@@ -59,7 +59,7 @@ export class FavoriteController {
   @Post('track/:id')
   addTrackToFavorites(@Param('id') trackId: string) {
     this.trackFavoritesService.addToFavorites(trackId);
-    return { artistId: trackId };
+    return { trackId: trackId };
   }
 
   @Delete('track/:id')

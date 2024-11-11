@@ -16,7 +16,13 @@ export class TrackRepositoryModule {}
 
 @Module({
   imports: [TrackRepositoryModule],
-  controllers: [TrackController],
   providers: [TrackService],
+  exports: [TrackService],
+})
+export class TrackServiceModule {}
+
+@Module({
+  imports: [TrackServiceModule],
+  controllers: [TrackController],
 })
 export class TrackModule {}

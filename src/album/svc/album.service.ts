@@ -5,12 +5,14 @@ import { Album } from '../entity/album.interface';
 import { AlbumDto } from '../dto/album.dto';
 import { AlbumRepository } from '../repository/album.repository';
 import { AlbumNotFoundException } from '../error/album.not.found.error';
+import { TrackService } from '../../track/svc/track.service';
 
 @Injectable()
 export class AlbumService {
   constructor(
     @Inject('AlbumRepository')
     private readonly albumRepository: AlbumRepository,
+    private readonly trackService: TrackService,
   ) {}
 
   findAll(): Album[] {
@@ -52,6 +54,7 @@ export class AlbumService {
     if (!success) {
       throw new AlbumNotFoundException();
     }
+    this.trackService.hideAlbumId(id);
   }
 
   private validateId(id: string) {

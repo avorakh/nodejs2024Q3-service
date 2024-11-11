@@ -4,14 +4,19 @@ import { AlbumService } from './svc/album.service';
 import { InMemoryAlbumRepository } from './repository/inmemory.album.repository';
 
 @Module({
-  controllers: [AlbumController],
   providers: [
-    AlbumService,
     {
       provide: 'AlbumRepository',
       useClass: InMemoryAlbumRepository,
     },
   ],
   exports: ['AlbumRepository'],
+})
+export class AlbumRepositoryModule {}
+
+@Module({
+  imports: [AlbumRepositoryModule],
+  controllers: [AlbumController],
+  providers: [AlbumService],
 })
 export class AlbumModule {}

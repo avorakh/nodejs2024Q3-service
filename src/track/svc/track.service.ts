@@ -56,6 +56,26 @@ export class TrackService {
     }
   }
 
+  hideAlbumId(albumId: string): void {
+    const foundTracks = this.findAll().filter(
+      (foundTrack) => foundTrack.albumId === albumId,
+    );
+    foundTracks.forEach((foundTrack) => {
+      foundTrack.albumId = null;
+      this.trackRepository.update(foundTrack.id, foundTrack);
+    });
+  }
+
+  hideArtistId(artistId: string): void {
+    const foundTracks = this.findAll().filter(
+      (foundTrack) => foundTrack.artistId === artistId,
+    );
+    foundTracks.forEach((foundTrack) => {
+      foundTrack.artistId = null;
+      this.trackRepository.update(foundTrack.id, foundTrack);
+    });
+  }
+
   private validateId(id: string) {
     if (!isUuid(id)) {
       throw new InvalidIDException();

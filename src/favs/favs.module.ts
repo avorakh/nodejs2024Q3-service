@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { FavoriteController } from './controller/favs.controller';
 import { ArtistFavoritesService } from './svc/artist.favs.service';
+import { AlbumFavoritesService } from './svc/album.favs.service';
 import { InMemoryFavoriteIdRepository } from './repository/inmemory.favs.repository';
 import { ArtistRepositoryModule } from '../artist/artist.module';
+import { AlbumRepositoryModule } from '../album/album.module';
 
 @Module({
   providers: [
@@ -16,15 +18,24 @@ import { ArtistRepositoryModule } from '../artist/artist.module';
 export class ArtistFavoriteIdRepositoryModule {}
 
 @Module({
-  imports: [ArtistRepositoryModule, ArtistFavoriteIdRepositoryModule],
-  controllers: [FavoriteController],
   providers: [
-    ArtistFavoritesService,
     {
-      provide: 'ArtistFavoriteIdRepository',
+      provide: 'AlbumFavoriteIdRepository',
       useClass: InMemoryFavoriteIdRepository,
     },
   ],
-  exports: ['ArtistFavoriteIdRepository'],
+  exports: ['AlbumFavoriteIdRepository'],
+})
+export class AlbumFavoriteIdRepositoryModule {}
+
+@Module({
+  imports: [
+    ArtistRepositoryModule,
+    ArtistFavoriteIdRepositoryModule,
+    AlbumRepositoryModule,
+    AlbumFavoriteIdRepositoryModule,
+  ],
+  controllers: [FavoriteController],
+  providers: [ArtistFavoritesService, AlbumFavoritesService],
 })
 export class FavoritesModule {}

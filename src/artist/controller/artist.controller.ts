@@ -18,31 +18,28 @@ export class ArtistController {
   constructor(private readonly artistService: ArtistService) {}
 
   @Get()
-  getAllUsers() {
+  getAllArtists() {
     return this.artistService.findAll();
   }
 
   @Get(':id')
-  getUserById(@Param('id') id: string) {
+  getArtistById(@Param('id') id: string) {
     return this.artistService.findById(id);
   }
 
   @Post()
-  createUser(@Body() createArtistDto: ArtistDto) {
+  createArtist(@Body() createArtistDto: ArtistDto) {
     return this.artistService.create(createArtistDto);
   }
 
   @Put(':id')
-  updateUserPassword(
-    @Param('id') id: string,
-    @Body() updateArtistDto: ArtistDto,
-  ) {
+  updateArtist(@Param('id') id: string, @Body() updateArtistDto: ArtistDto) {
     return this.artistService.update(id, updateArtistDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteUser(@Param('id') id: string) {
+  deleteArtist(@Param('id') id: string) {
     this.artistService.delete(id);
   }
 }

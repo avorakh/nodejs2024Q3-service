@@ -1,6 +1,6 @@
 import { v4 as uuidv4, validate as isUuid } from 'uuid';
 import { Inject, Injectable } from '@nestjs/common';
-import { User } from '../entity/user.interface';
+import { User } from '../model/user.interface';
 import { UserRepository } from '../repository/user.repository.interface';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdatePasswordDto } from '../dto/update-password.dto';

@@ -32,7 +32,7 @@ async function bootstrap() {
   });
 
   try {
-    const openApiPath = resolve(__dirname, '../doc/api.yaml');
+    const openApiPath = resolve(__dirname, './../../doc/api.yaml');
     const fileContent = await readFile(openApiPath, 'utf8');
     const openApiDocument = load(fileContent);
     app.use('/doc', serve, setup(openApiDocument));

@@ -1,4 +1,4 @@
-import { User } from '../entity/user.interface';
+import { User } from '../model/user.interface';
 import { UserRepository } from './user.repository.interface';
 import { Injectable } from '@nestjs/common';
 

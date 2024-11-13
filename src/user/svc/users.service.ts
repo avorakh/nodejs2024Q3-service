@@ -1,31 +1,30 @@
 import { v4 as uuidv4, validate as isUuid } from 'uuid';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserModel } from '../model/user.interface';
-import { UserRepository } from '../repository/user.repository.interface';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdatePasswordDto } from '../dto/update-password.dto';
 import { InvalidIDException } from '../../error/invalid.id.error';
 import { UserNotFoundException } from '../error/user.not.found.error';
 import { IncorrectOldPasswordException } from '../error/incorrect.old.password.error';
 import { User } from '../entity/user.entity';
+import { UserRepository } from '../repository/user.repository';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @Inject('UserRepository') private readonly userRepository: UserRepository,
-  ) {}
+  constructor(private readonly userRepository: UserRepository) {}
 
-  findAll(): UserModel[] {
-    return this.userRepository.findAll().map(convert);
+  async findAll(): Promise<UserModel[]> {
+    const foundUsers = await this.userRepository.findAll();
+    return foundUsers.map(convert);
   }
 
-  findById(id: string): UserModel {
+  async findById(id: string): Promise<UserModel> {
     this.validateId(id);
-    const user = this.findUser(id);
+    const user = await this.findUser(id);
     return convert(user);
   }
 
-  create(createUserDto: CreateUserDto): UserModel {
+  async create(createUserDto: CreateUserDto): Promise<UserModel> {
     const newUser: User = {
       id: uuidv4(),
       login: createUserDto.login,
@@ -34,17 +33,20 @@ export class UsersService {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    const createdUser = this.userRepository.create(newUser);
+    const createdUser = await this.userRepository.create(newUser);
     return convert(createdUser);
   }
 
-  updatePassword(id: string, updatePasswordDto: UpdatePasswordDto): UserModel {
+  async updatePassword(
+    id: string,
+    updatePasswordDto: UpdatePasswordDto,
+  ): Promise<UserModel> {
     this.validateId(id);
-    const user = this.findUser(id);
+    const user = await this.findUser(id);
     if (user.password !== updatePasswordDto.oldPassword)
       throw new IncorrectOldPasswordException();
 
-    const updatedUser = this.userRepository.update(id, {
+    const updatedUser = await this.userRepository.update(id, {
       password: updatePasswordDto.newPassword,
     });
     if (!updatedUser) {
@@ -53,9 +55,9 @@ export class UsersService {
     return convert(updatedUser);
   }
 
-  delete(id: string): void {
+  async delete(id: string): Promise<void> {
     this.validateId(id);
-    const success = this.userRepository.delete(id);
+    const success = await this.userRepository.delete(id);
     if (!success) {
       throw new UserNotFoundException();
     }
@@ -67,8 +69,8 @@ export class UsersService {
     }
   }
 
-  private findUser(id: string) {
-    const user = this.userRepository.findById(id);
+  private async findUser(id: string): Promise<User> {
+    const user = await this.userRepository.findById(id);
     if (!user) {
       throw new UserNotFoundException();
     }

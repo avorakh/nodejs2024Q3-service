@@ -1,4 +1,4 @@
-import { User } from '../model/user.interface';
+import { User } from '../entity/user.entity';
 
 export interface UserRepository {
   findAll(): User[];

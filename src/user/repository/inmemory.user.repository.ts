@@ -1,4 +1,4 @@
-import { User } from '../model/user.interface';
+import { User } from '../entity/user.entity';
 import { UserRepository } from './user.repository.interface';
 import { Injectable } from '@nestjs/common';
 
@@ -29,7 +29,7 @@ export class InMemoryUserRepository implements UserRepository {
       ...existingUser,
       ...user,
       version: existingUser.version + 1,
-      updatedAt: Date.now(),
+      updatedAt: new Date(),
     };
     this.users.set(id, updatedUser);
     return updatedUser;

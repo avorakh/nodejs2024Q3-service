@@ -1,12 +1,13 @@
 import { v4 as uuidv4, validate as isUuid } from 'uuid';
 import { Inject, Injectable } from '@nestjs/common';
-import { User } from '../model/user.interface';
+import { UserModel } from '../model/user.interface';
 import { UserRepository } from '../repository/user.repository.interface';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdatePasswordDto } from '../dto/update-password.dto';
 import { InvalidIDException } from '../../error/invalid.id.error';
 import { UserNotFoundException } from '../error/user.not.found.error';
 import { IncorrectOldPasswordException } from '../error/incorrect.old.password.error';
+import { User } from '../entity/user.entity';
 
 @Injectable()
 export class UsersService {
@@ -14,33 +15,30 @@ export class UsersService {
     @Inject('UserRepository') private readonly userRepository: UserRepository,
   ) {}
 
-  findAll(): Omit<User, 'password'>[] {
-    return this.userRepository.findAll().map(this.hidePassword);
+  findAll(): UserModel[] {
+    return this.userRepository.findAll().map(convert);
   }
 
-  findById(id: string): Omit<User, 'password'> {
+  findById(id: string): UserModel {
     this.validateId(id);
     const user = this.findUser(id);
-    return this.hidePassword(user);
+    return convert(user);
   }
 
-  create(createUserDto: CreateUserDto): Omit<User, 'password'> {
+  create(createUserDto: CreateUserDto): UserModel {
     const newUser: User = {
       id: uuidv4(),
       login: createUserDto.login,
       password: createUserDto.password,
       version: 1,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
     const createdUser = this.userRepository.create(newUser);
-    return this.hidePassword(createdUser);
+    return convert(createdUser);
   }
 
-  updatePassword(
-    id: string,
-    updatePasswordDto: UpdatePasswordDto,
-  ): Omit<User, 'password'> {
+  updatePassword(id: string, updatePasswordDto: UpdatePasswordDto): UserModel {
     this.validateId(id);
     const user = this.findUser(id);
     if (user.password !== updatePasswordDto.oldPassword)
@@ -52,7 +50,7 @@ export class UsersService {
     if (!updatedUser) {
       throw new UserNotFoundException();
     }
-    return this.hidePassword(updatedUser);
+    return convert(updatedUser);
   }
 
   delete(id: string): void {
@@ -76,14 +74,14 @@ export class UsersService {
     }
     return user;
   }
-
-  private hidePassword(user: User): Omit<User, 'password'> {
-    return {
-      id: user.id,
-      login: user.login,
-      version: user.version,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    } as Omit<User, 'password'>;
-  }
 }
+
+const convert = (user: User): UserModel => {
+  return {
+    id: user.id,
+    login: user.login,
+    version: user.version,
+    createdAt: user.createdAt.getTime(),
+    updatedAt: user.updatedAt.getTime(),
+  };
+};

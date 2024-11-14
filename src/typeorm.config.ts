@@ -2,6 +2,7 @@ import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
 import { User } from './user/entity/user.entity';
 import { Artist } from './artist/entity/artist.interface';
+import { Album } from './album/entity/album.interface';
 
 config();
 
@@ -14,6 +15,6 @@ export const OrmDataSource: DataSource = new DataSource({
   database: process.env.DB_NAME,
   synchronize: false,
   logging: true,
-  entities: [User, Artist],
+  entities: [User, Artist, Album],
   migrations: [__dirname + '/../migrations/*{.ts,.js}'],
 });

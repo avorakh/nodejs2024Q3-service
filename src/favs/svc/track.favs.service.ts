@@ -17,7 +17,7 @@ export class TrackFavoritesService implements FavoritesServiceInterface<Track> {
     private readonly trackFavoriteIdRepository: FavoriteIdRepository,
   ) {}
 
-  getAll(): Track[] {
+  async getAll(): Promise<Track[]> {
     const favoriteIds: string[] = this.trackFavoriteIdRepository.findAll();
 
     return this.trackRepository
@@ -25,7 +25,7 @@ export class TrackFavoritesService implements FavoritesServiceInterface<Track> {
       .filter((foundTrack) => favoriteIds.includes(foundTrack.id));
   }
 
-  addToFavorites(id: string): void {
+  async addToFavorites(id: string): Promise<void> {
     this.validateId(id);
     const foundTrack = this.trackRepository.findById(id);
 
@@ -35,7 +35,7 @@ export class TrackFavoritesService implements FavoritesServiceInterface<Track> {
     this.trackFavoriteIdRepository.create(id);
   }
 
-  deleteFromFavorites(id: string): void {
+  async deleteFromFavorites(id: string): Promise<void> {
     this.validateId(id);
     const foundTrack = this.trackRepository.findById(id);
 

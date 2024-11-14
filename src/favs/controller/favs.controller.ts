@@ -21,10 +21,10 @@ export class FavoriteController {
   ) {}
 
   @Get()
-  getAllAlbums(): FavoritesResponse {
-    const favoriteArtists = this.artistFavoritesService.getAll();
-    const favoriteAlbums = this.albumFavoritesService.getAll();
-    const favoriteTrack = this.trackFavoritesService.getAll();
+  async getAllAlbums(): Promise<FavoritesResponse> {
+    const favoriteArtists = await this.artistFavoritesService.getAll();
+    const favoriteAlbums = await this.albumFavoritesService.getAll();
+    const favoriteTrack = await this.trackFavoritesService.getAll();
     return {
       artists: favoriteArtists,
       albums: favoriteAlbums,
@@ -33,38 +33,38 @@ export class FavoriteController {
   }
 
   @Post('artist/:id')
-  addArtistToFavorites(@Param('id') artistId: string) {
-    this.artistFavoritesService.addToFavorites(artistId);
+  async addArtistToFavorites(@Param('id') artistId: string) {
+    await this.artistFavoritesService.addToFavorites(artistId);
     return { artistId: artistId };
   }
 
   @Delete('artist/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteArtistFromFavorites(@Param('id') artistId: string) {
-    this.artistFavoritesService.deleteFromFavorites(artistId);
+  async deleteArtistFromFavorites(@Param('id') artistId: string) {
+    await this.artistFavoritesService.deleteFromFavorites(artistId);
   }
 
   @Post('album/:id')
-  addAlbumToFavorites(@Param('id') albumId: string) {
-    this.albumFavoritesService.addToFavorites(albumId);
+  async addAlbumToFavorites(@Param('id') albumId: string) {
+    await this.albumFavoritesService.addToFavorites(albumId);
     return { albumId: albumId };
   }
 
   @Delete('album/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteAlbumFromFavorites(@Param('id') albumId: string) {
-    this.albumFavoritesService.deleteFromFavorites(albumId);
+  async deleteAlbumFromFavorites(@Param('id') albumId: string) {
+    await this.albumFavoritesService.deleteFromFavorites(albumId);
   }
 
   @Post('track/:id')
-  addTrackToFavorites(@Param('id') trackId: string) {
-    this.trackFavoritesService.addToFavorites(trackId);
+  async addTrackToFavorites(@Param('id') trackId: string) {
+    await this.trackFavoritesService.addToFavorites(trackId);
     return { trackId: trackId };
   }
 
   @Delete('track/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteTrackFromFavorites(@Param('id') trackId: string) {
-    this.trackFavoritesService.deleteFromFavorites(trackId);
+  async deleteTrackFromFavorites(@Param('id') trackId: string) {
+    await this.trackFavoritesService.deleteFromFavorites(trackId);
   }
 }

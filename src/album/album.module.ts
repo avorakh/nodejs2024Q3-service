@@ -1,17 +1,16 @@
 import { Module } from '@nestjs/common';
 import { AlbumController } from './controller/album.controller';
 import { AlbumService } from './svc/album.service';
-import { InMemoryAlbumRepository } from './repository/inmemory.album.repository';
 import { TrackServiceModule } from '../track/track.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Album } from './entity/album.interface';
+import { DataSourceModule } from '../orm/orm.datasource';
+import { AlbumRepository } from './repository/album.repository';
 
 @Module({
-  providers: [
-    {
-      provide: 'AlbumRepository',
-      useClass: InMemoryAlbumRepository,
-    },
-  ],
-  exports: ['AlbumRepository'],
+  imports: [DataSourceModule, TypeOrmModule.forFeature([Album])],
+  providers: [AlbumRepository],
+  exports: [AlbumRepository],
 })
 export class AlbumRepositoryModule {}
 

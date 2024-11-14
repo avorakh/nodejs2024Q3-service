@@ -11,7 +11,6 @@ import { Inject, Injectable } from '@nestjs/common';
 @Injectable()
 export class AlbumFavoritesService implements FavoritesServiceInterface<Album> {
   constructor(
-    @Inject('AlbumRepository')
     private readonly albumRepository: AlbumRepository,
     @Inject('AlbumFavoriteIdRepository')
     private readonly albumFavoriteIdRepository: FavoriteIdRepository,

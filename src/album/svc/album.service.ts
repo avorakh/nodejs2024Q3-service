@@ -1,5 +1,5 @@
 import { v4 as uuidv4, validate as isUuid } from 'uuid';
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InvalidIDException } from '../../error/invalid.id.error';
 import { Album } from '../entity/album.interface';
 import { AlbumDto } from '../dto/album.dto';
@@ -10,7 +10,6 @@ import { TrackService } from '../../track/svc/track.service';
 @Injectable()
 export class AlbumService {
   constructor(
-    @Inject('AlbumRepository')
     private readonly albumRepository: AlbumRepository,
     private readonly trackService: TrackService,
   ) {}

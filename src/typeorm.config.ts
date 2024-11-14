@@ -3,6 +3,7 @@ import { config } from 'dotenv';
 import { User } from './user/entity/user.entity';
 import { Artist } from './artist/entity/artist.interface';
 import { Album } from './album/entity/album.interface';
+import { Track } from './track/entity/track.interface';
 
 config();
 
@@ -15,6 +16,6 @@ export const OrmDataSource: DataSource = new DataSource({
   database: process.env.DB_NAME,
   synchronize: false,
   logging: true,
-  entities: [User, Artist, Album],
+  entities: [User, Artist, Album, Track],
   migrations: [__dirname + '/../migrations/*{.ts,.js}'],
 });

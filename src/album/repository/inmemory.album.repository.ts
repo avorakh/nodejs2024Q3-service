@@ -6,17 +6,18 @@ import { Injectable } from '@nestjs/common';
 export class InMemoryAlbumRepository implements AlbumRepository {
   private albums: Map<string, Album> = new Map();
 
-  findAll(): Album[] {
+  async findAll(): Promise<Album[]> {
     return Array.from(this.albums.values());
   }
-  findById(id: string): Album | undefined {
+  async findById(id: string): Promise<Album | undefined> {
     return this.albums.get(id);
   }
-  create(newAlbum: Album): Album {
+  async create(newAlbum: Album): Promise<Album> {
     this.albums.set(newAlbum.id, newAlbum);
     return newAlbum;
   }
-  update(id: string, album: Partial<Album>): Album | undefined {
+
+  async update(id: string, album: Partial<Album>): Promise<Album | undefined> {
     const existingAlbum = this.albums.get(id);
     if (!existingAlbum) {
       return undefined;
@@ -29,7 +30,7 @@ export class InMemoryAlbumRepository implements AlbumRepository {
     this.albums.set(id, updatedAlbum);
     return updatedAlbum;
   }
-  delete(id: string): boolean {
+  async delete(id: string): Promise<boolean> {
     return this.albums.delete(id);
   }
 }

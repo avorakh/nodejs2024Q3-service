@@ -37,7 +37,7 @@ export class AlbumService {
   async update(id: string, albumDto: AlbumDto): Promise<Album> {
     this.validateId(id);
     await this.findAlbum(id);
-    const updatedAlbum = this.albumRepository.update(id, {
+    const updatedAlbum = await this.albumRepository.update(id, {
       name: albumDto.name,
       year: albumDto.year,
       artistId: albumDto.artistId,
@@ -50,7 +50,7 @@ export class AlbumService {
 
   async delete(id: string): Promise<void> {
     this.validateId(id);
-    const success = this.albumRepository.delete(id);
+    const success = await this.albumRepository.delete(id);
     if (!success) {
       throw new AlbumNotFoundException();
     }
@@ -62,9 +62,9 @@ export class AlbumService {
 
     foundAlbums
       .filter((foundAlbum) => foundAlbum.artistId === artistId)
-      .forEach((foundAlbum) => {
+      .forEach(async (foundAlbum) => {
         foundAlbum.artistId = null;
-        this.albumRepository.update(foundAlbum.id, foundAlbum);
+        await this.albumRepository.update(foundAlbum.id, foundAlbum);
       });
   }
 
@@ -75,7 +75,7 @@ export class AlbumService {
   }
 
   private async findAlbum(id: string): Promise<Album> {
-    const foundAlbum = this.albumRepository.findById(id);
+    const foundAlbum = await this.albumRepository.findById(id);
     if (!foundAlbum) {
       throw new AlbumNotFoundException();
     }

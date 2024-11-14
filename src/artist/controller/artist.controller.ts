@@ -19,17 +19,17 @@ export class ArtistController {
 
   @Get()
   async getAllArtists() {
-    return this.artistService.findAll();
+    return await this.artistService.findAll();
   }
 
   @Get(':id')
   async getArtistById(@Param('id') id: string) {
-    return this.artistService.findById(id);
+    return await this.artistService.findById(id);
   }
 
   @Post()
   async createArtist(@Body() createArtistDto: ArtistDto) {
-    return this.artistService.create(createArtistDto);
+    return await this.artistService.create(createArtistDto);
   }
 
   @Put(':id')

@@ -11,7 +11,6 @@ import { Inject, Injectable } from '@nestjs/common';
 @Injectable()
 export class AlbumFavoritesService implements FavoritesServiceInterface<Album> {
   constructor(
-    @Inject('AlbumRepository')
     private readonly albumRepository: AlbumRepository,
     @Inject('AlbumFavoriteIdRepository')
     private readonly albumFavoriteIdRepository: FavoriteIdRepository,
@@ -19,15 +18,15 @@ export class AlbumFavoritesService implements FavoritesServiceInterface<Album> {
 
   async getAll(): Promise<Album[]> {
     const favoriteIds: string[] = this.albumFavoriteIdRepository.findAll();
-
-    return this.albumRepository
-      .findAll()
-      .filter((foundAlbum) => favoriteIds.includes(foundAlbum.id));
+    const foundAlbums: Album[] = await this.albumRepository.findAll();
+    return foundAlbums.filter((foundAlbum) =>
+      favoriteIds.includes(foundAlbum.id),
+    );
   }
 
   async addToFavorites(id: string): Promise<void> {
     this.validateId(id);
-    const foundAlbum = this.albumRepository.findById(id);
+    const foundAlbum = await this.albumRepository.findById(id);
 
     if (!foundAlbum) {
       throw new FavoriteItemNotFoundException('Album not found');
@@ -37,7 +36,7 @@ export class AlbumFavoritesService implements FavoritesServiceInterface<Album> {
 
   async deleteFromFavorites(id: string): Promise<void> {
     this.validateId(id);
-    const foundAlbum = this.albumRepository.findById(id);
+    const foundAlbum = await this.albumRepository.findById(id);
 
     if (!foundAlbum) {
       throw new FavoriteItemNotFoundException(

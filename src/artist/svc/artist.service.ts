@@ -53,7 +53,7 @@ export class ArtistService {
     if (!success) {
       throw new ArtistNotFoundException();
     }
-    this.albumService.hideArtistId(id);
+    await this.albumService.hideArtistId(id);
     this.trackService.hideArtistId(id);
   }
 

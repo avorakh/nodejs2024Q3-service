@@ -15,16 +15,16 @@ export class AlbumService {
     private readonly trackService: TrackService,
   ) {}
 
-  findAll(): Album[] {
+  async findAll(): Promise<Album[]> {
     return this.albumRepository.findAll();
   }
 
-  findById(id: string): Album {
+  async findById(id: string): Promise<Album> {
     this.validateId(id);
     return this.findAlbum(id);
   }
 
-  create(albumDto: AlbumDto): Album {
+  async create(albumDto: AlbumDto): Promise<Album> {
     const newAlbum: Album = {
       id: uuidv4(),
       name: albumDto.name,
@@ -34,9 +34,9 @@ export class AlbumService {
     return this.albumRepository.create(newAlbum);
   }
 
-  update(id: string, albumDto: AlbumDto): Album {
+  async update(id: string, albumDto: AlbumDto): Promise<Album> {
     this.validateId(id);
-    this.findAlbum(id);
+    await this.findAlbum(id);
     const updatedAlbum = this.albumRepository.update(id, {
       name: albumDto.name,
       year: albumDto.year,
@@ -48,7 +48,7 @@ export class AlbumService {
     return updatedAlbum;
   }
 
-  delete(id: string): void {
+  async delete(id: string): Promise<void> {
     this.validateId(id);
     const success = this.albumRepository.delete(id);
     if (!success) {
@@ -57,14 +57,15 @@ export class AlbumService {
     this.trackService.hideAlbumId(id);
   }
 
-  hideArtistId(artistId: string): void {
-    const foundAlbums = this.findAll().filter(
-      (foundAlbum) => foundAlbum.artistId === artistId,
-    );
-    foundAlbums.forEach((foundAlbum) => {
-      foundAlbum.artistId = null;
-      this.albumRepository.update(foundAlbum.id, foundAlbum);
-    });
+  async hideArtistId(artistId: string): Promise<void> {
+    const foundAlbums = await this.findAll();
+
+    foundAlbums
+      .filter((foundAlbum) => foundAlbum.artistId === artistId)
+      .forEach((foundAlbum) => {
+        foundAlbum.artistId = null;
+        this.albumRepository.update(foundAlbum.id, foundAlbum);
+      });
   }
 
   private validateId(id: string) {
@@ -73,7 +74,7 @@ export class AlbumService {
     }
   }
 
-  private findAlbum(id: string): Album {
+  private async findAlbum(id: string): Promise<Album> {
     const foundAlbum = this.albumRepository.findById(id);
     if (!foundAlbum) {
       throw new AlbumNotFoundException();

@@ -13,16 +13,16 @@ export class TrackService {
     private readonly trackRepository: TrackRepository,
   ) {}
 
-  findAll(): Track[] {
+  async findAll(): Promise<Track[]> {
     return this.trackRepository.findAll();
   }
 
-  findById(id: string): Track {
+  async findById(id: string): Promise<Track> {
     this.validateId(id);
     return this.findTrack(id);
   }
 
-  create(trackDto: TrackDto): Track {
+  async create(trackDto: TrackDto): Promise<Track> {
     const newTrack: Track = {
       id: uuidv4(),
       name: trackDto.name,
@@ -33,9 +33,9 @@ export class TrackService {
     return this.trackRepository.create(newTrack);
   }
 
-  update(id: string, trackDto: TrackDto): Track {
+  async update(id: string, trackDto: TrackDto): Promise<Track> {
     this.validateId(id);
-    this.findTrack(id);
+    await this.findTrack(id);
     const updatedTrack = this.trackRepository.update(id, {
       name: trackDto.name,
       duration: trackDto.duration,
@@ -48,7 +48,7 @@ export class TrackService {
     return updatedTrack;
   }
 
-  delete(id: string): void {
+  async delete(id: string): Promise<void> {
     this.validateId(id);
     const success = this.trackRepository.delete(id);
     if (!success) {
@@ -56,24 +56,24 @@ export class TrackService {
     }
   }
 
-  hideAlbumId(albumId: string): void {
-    const foundTracks = this.findAll().filter(
-      (foundTrack) => foundTrack.albumId === albumId,
-    );
-    foundTracks.forEach((foundTrack) => {
-      foundTrack.albumId = null;
-      this.trackRepository.update(foundTrack.id, foundTrack);
-    });
+  async hideAlbumId(albumId: string): Promise<void> {
+    const foundTracks = await this.findAll();
+    foundTracks
+      .filter((foundTrack) => foundTrack.albumId === albumId)
+      .forEach((foundTrack) => {
+        foundTrack.albumId = null;
+        this.trackRepository.update(foundTrack.id, foundTrack);
+      });
   }
 
-  hideArtistId(artistId: string): void {
-    const foundTracks = this.findAll().filter(
-      (foundTrack) => foundTrack.artistId === artistId,
-    );
-    foundTracks.forEach((foundTrack) => {
-      foundTrack.artistId = null;
-      this.trackRepository.update(foundTrack.id, foundTrack);
-    });
+  async hideArtistId(artistId: string): Promise<void> {
+    const foundTracks = await this.findAll();
+    foundTracks
+      .filter((foundTrack) => foundTrack.artistId === artistId)
+      .forEach((foundTrack) => {
+        foundTrack.artistId = null;
+        this.trackRepository.update(foundTrack.id, foundTrack);
+      });
   }
 
   private validateId(id: string) {
@@ -82,7 +82,7 @@ export class TrackService {
     }
   }
 
-  private findTrack(id: string): Track {
+  private async findTrack(id: string): Promise<Track> {
     const foundAlbum = this.trackRepository.findById(id);
     if (!foundAlbum) {
       throw new TrackNotFoundException();

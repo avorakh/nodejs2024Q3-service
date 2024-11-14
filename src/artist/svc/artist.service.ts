@@ -54,7 +54,7 @@ export class ArtistService {
       throw new ArtistNotFoundException();
     }
     await this.albumService.hideArtistId(id);
-    this.trackService.hideArtistId(id);
+    await this.trackService.hideArtistId(id);
   }
 
   private validateId(id: string) {

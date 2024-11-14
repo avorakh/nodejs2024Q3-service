@@ -53,7 +53,7 @@ export class AlbumService {
     if (!success) {
       throw new AlbumNotFoundException();
     }
-    this.trackService.hideAlbumId(id);
+    await this.trackService.hideAlbumId(id);
   }
 
   async hideArtistId(artistId: string): Promise<void> {

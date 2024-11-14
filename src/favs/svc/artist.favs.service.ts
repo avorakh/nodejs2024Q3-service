@@ -13,23 +13,24 @@ export class ArtistFavoritesService
   implements FavoritesServiceInterface<Artist>
 {
   constructor(
-    @Inject('ArtistRepository')
     private readonly artistRepository: ArtistRepository,
     @Inject('ArtistFavoriteIdRepository')
     private readonly artistTFavoriteIdRepository: FavoriteIdRepository,
   ) {}
 
-  getAll(): Artist[] {
+  async getAll(): Promise<Artist[]> {
     const favoriteIds: string[] = this.artistTFavoriteIdRepository.findAll();
 
-    return this.artistRepository
-      .findAll()
-      .filter((foundArtist) => favoriteIds.includes(foundArtist.id));
+    const foundArtists: Artist[] = await this.artistRepository.findAll();
+
+    return foundArtists.filter((foundArtist) =>
+      favoriteIds.includes(foundArtist.id),
+    );
   }
 
-  addToFavorites(id: string): void {
+  async addToFavorites(id: string): Promise<void> {
     this.validateId(id);
-    const foundArtist = this.artistRepository.findById(id);
+    const foundArtist = await this.artistRepository.findById(id);
 
     if (!foundArtist) {
       throw new FavoriteItemNotFoundException('Artist not found');
@@ -37,9 +38,9 @@ export class ArtistFavoritesService
     this.artistTFavoriteIdRepository.create(id);
   }
 
-  deleteFromFavorites(id: string): void {
+  async deleteFromFavorites(id: string): Promise<void> {
     this.validateId(id);
-    const foundArtist = this.artistRepository.findById(id);
+    const foundArtist = await this.artistRepository.findById(id);
 
     if (!foundArtist) {
       throw new FavoriteItemNotFoundException(

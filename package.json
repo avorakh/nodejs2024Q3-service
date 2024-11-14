@@ -6,6 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "migration:generete": "npx typeorm-ts-node-commonjs migration:generate migrations/CreateTables -d src/typeorm.config.ts",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d src/typeorm.config.ts",
     "prebuild": "rimraf dist",
     "build": "nest build",

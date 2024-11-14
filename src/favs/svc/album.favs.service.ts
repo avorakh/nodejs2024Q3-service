@@ -17,7 +17,7 @@ export class AlbumFavoritesService implements FavoritesServiceInterface<Album> {
     private readonly albumFavoriteIdRepository: FavoriteIdRepository,
   ) {}
 
-  getAll(): Album[] {
+  async getAll(): Promise<Album[]> {
     const favoriteIds: string[] = this.albumFavoriteIdRepository.findAll();
 
     return this.albumRepository
@@ -25,7 +25,7 @@ export class AlbumFavoritesService implements FavoritesServiceInterface<Album> {
       .filter((foundAlbum) => favoriteIds.includes(foundAlbum.id));
   }
 
-  addToFavorites(id: string): void {
+  async addToFavorites(id: string): Promise<void> {
     this.validateId(id);
     const foundAlbum = this.albumRepository.findById(id);
 
@@ -35,7 +35,7 @@ export class AlbumFavoritesService implements FavoritesServiceInterface<Album> {
     this.albumFavoriteIdRepository.create(id);
   }
 
-  deleteFromFavorites(id: string): void {
+  async deleteFromFavorites(id: string): Promise<void> {
     this.validateId(id);
     const foundAlbum = this.albumRepository.findById(id);
 

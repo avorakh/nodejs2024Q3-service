@@ -36,7 +36,7 @@ export class TrackService {
   async update(id: string, trackDto: TrackDto): Promise<Track> {
     this.validateId(id);
     await this.findTrack(id);
-    const updatedTrack = this.trackRepository.update(id, {
+    const updatedTrack = await this.trackRepository.update(id, {
       name: trackDto.name,
       duration: trackDto.duration,
       artistId: trackDto.artistId,
@@ -50,7 +50,7 @@ export class TrackService {
 
   async delete(id: string): Promise<void> {
     this.validateId(id);
-    const success = this.trackRepository.delete(id);
+    const success = await this.trackRepository.delete(id);
     if (!success) {
       throw new TrackNotFoundException();
     }
@@ -60,9 +60,9 @@ export class TrackService {
     const foundTracks = await this.findAll();
     foundTracks
       .filter((foundTrack) => foundTrack.albumId === albumId)
-      .forEach((foundTrack) => {
+      .forEach(async (foundTrack) => {
         foundTrack.albumId = null;
-        this.trackRepository.update(foundTrack.id, foundTrack);
+        await this.trackRepository.update(foundTrack.id, foundTrack);
       });
   }
 
@@ -70,9 +70,9 @@ export class TrackService {
     const foundTracks = await this.findAll();
     foundTracks
       .filter((foundTrack) => foundTrack.artistId === artistId)
-      .forEach((foundTrack) => {
+      .forEach(async (foundTrack) => {
         foundTrack.artistId = null;
-        this.trackRepository.update(foundTrack.id, foundTrack);
+        await this.trackRepository.update(foundTrack.id, foundTrack);
       });
   }
 
@@ -83,7 +83,7 @@ export class TrackService {
   }
 
   private async findTrack(id: string): Promise<Track> {
-    const foundAlbum = this.trackRepository.findById(id);
+    const foundAlbum = await this.trackRepository.findById(id);
     if (!foundAlbum) {
       throw new TrackNotFoundException();
     }

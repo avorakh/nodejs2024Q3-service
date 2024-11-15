@@ -1,9 +1,9 @@
 import { Track } from '../entity/track.interface';
 
 export interface TrackRepository {
-  findAll(): Track[];
-  findById(id: string): Track | undefined;
-  create(newTrack: Track): Track;
-  update(id: string, track: Partial<Track>): Track | undefined;
-  delete(id: string): boolean;
+  findAll(): Promise<Track[]>;
+  findById(id: string): Promise<Track | undefined>;
+  create(newTrack: Track): Promise<Track>;
+  update(id: string, track: Partial<Track>): Promise<Track | undefined>;
+  delete(id: string): Promise<boolean>;
 }

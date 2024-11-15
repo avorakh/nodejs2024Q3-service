@@ -19,15 +19,15 @@ export class TrackFavoritesService implements FavoritesServiceInterface<Track> {
 
   async getAll(): Promise<Track[]> {
     const favoriteIds: string[] = this.trackFavoriteIdRepository.findAll();
-
-    return this.trackRepository
-      .findAll()
-      .filter((foundTrack) => favoriteIds.includes(foundTrack.id));
+    const foundTracks: Track[] = await this.trackRepository.findAll();
+    return foundTracks.filter((foundTrack) =>
+      favoriteIds.includes(foundTrack.id),
+    );
   }
 
   async addToFavorites(id: string): Promise<void> {
     this.validateId(id);
-    const foundTrack = this.trackRepository.findById(id);
+    const foundTrack = await this.trackRepository.findById(id);
 
     if (!foundTrack) {
       throw new FavoriteItemNotFoundException('Track not found');
@@ -37,7 +37,7 @@ export class TrackFavoritesService implements FavoritesServiceInterface<Track> {
 
   async deleteFromFavorites(id: string): Promise<void> {
     this.validateId(id);
-    const foundTrack = this.trackRepository.findById(id);
+    const foundTrack = await this.trackRepository.findById(id);
 
     if (!foundTrack) {
       throw new FavoriteItemNotFoundException(

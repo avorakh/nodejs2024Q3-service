@@ -6,20 +6,20 @@ import { Injectable } from '@nestjs/common';
 export class InMemoryTrackRepository implements TrackRepository {
   private tracks: Map<string, Track> = new Map();
 
-  findAll(): Track[] {
+  async findAll(): Promise<Track[]> {
     return Array.from(this.tracks.values());
   }
 
-  findById(id: string): Track | undefined {
+  async findById(id: string): Promise<Track | undefined> {
     return this.tracks.get(id);
   }
 
-  create(newTrack: Track): Track {
+  async create(newTrack: Track): Promise<Track> {
     this.tracks.set(newTrack.id, newTrack);
     return newTrack;
   }
 
-  update(id: string, track: Partial<Track>): Track | undefined {
+  async update(id: string, track: Partial<Track>): Promise<Track | undefined> {
     const existingTrack = this.tracks.get(id);
     if (!existingTrack) {
       return undefined;
@@ -33,7 +33,7 @@ export class InMemoryTrackRepository implements TrackRepository {
     return updatedTrack;
   }
 
-  delete(id: string): boolean {
+  async delete(id: string): Promise<boolean> {
     return this.tracks.delete(id);
   }
 }

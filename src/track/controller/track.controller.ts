@@ -18,28 +18,28 @@ export class TrackController {
   constructor(private readonly trackService: TrackService) {}
 
   @Get()
-  getAllTracks() {
-    return this.trackService.findAll();
+  async getAllTracks() {
+    return await this.trackService.findAll();
   }
 
   @Get(':id')
-  getTrackById(@Param('id') id: string) {
-    return this.trackService.findById(id);
+  async getTrackById(@Param('id') id: string) {
+    return await this.trackService.findById(id);
   }
 
   @Post()
-  createTrack(@Body() createTrackDto: TrackDto) {
-    return this.trackService.create(createTrackDto);
+  async createTrack(@Body() createTrackDto: TrackDto) {
+    return await this.trackService.create(createTrackDto);
   }
 
   @Put(':id')
-  updateTrack(@Param('id') id: string, @Body() updateTrackDto: TrackDto) {
-    return this.trackService.update(id, updateTrackDto);
+  async updateTrack(@Param('id') id: string, @Body() updateTrackDto: TrackDto) {
+    return await this.trackService.update(id, updateTrackDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteTrack(@Param('id') id: string) {
-    this.trackService.delete(id);
+  async deleteTrack(@Param('id') id: string) {
+    await this.trackService.delete(id);
   }
 }

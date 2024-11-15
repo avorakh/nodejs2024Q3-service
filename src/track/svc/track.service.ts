@@ -1,5 +1,5 @@
 import { v4 as uuidv4, validate as isUuid } from 'uuid';
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Track } from '../entity/track.interface';
 import { TrackRepository } from '../repository/track.repository';
 import { TrackDto } from '../dto/track.dto';
@@ -8,10 +8,7 @@ import { TrackNotFoundException } from '../error/track.not.found.error';
 
 @Injectable()
 export class TrackService {
-  constructor(
-    @Inject('TrackRepository')
-    private readonly trackRepository: TrackRepository,
-  ) {}
+  constructor(private readonly trackRepository: TrackRepository) {}
 
   async findAll(): Promise<Track[]> {
     return this.trackRepository.findAll();

@@ -11,7 +11,6 @@ import { HttpStatus } from '@nestjs/common';
 @Injectable()
 export class TrackFavoritesService implements FavoritesServiceInterface<Track> {
   constructor(
-    @Inject('TrackRepository')
     private readonly trackRepository: TrackRepository,
     @Inject('TrackFavoriteIdRepository')
     private readonly trackFavoriteIdRepository: FavoriteIdRepository,

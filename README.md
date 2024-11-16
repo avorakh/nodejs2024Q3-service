@@ -77,3 +77,45 @@ npm run format
 Press <kbd>F5</kbd> to debug.
 
 For more information, visit: https://code.visualstudio.com/docs/editor/debugging
+
+
+## Containerization, Docker
+### Home Library network
+
+1. **Create a custom network:**
+Create a custom network for the application
+   ```bash
+   docker network create home-library-network
+   ```
+
+### Home Library PostgreSQL
+
+1. **Build the Docker image:**
+
+Build the image from the specific path of the project
+
+   ```bash
+   docker build -t home-library-postgres:1.0  -f ./docker/postgres/Dockerfile .
+   ```
+
+2. **Run the Docker container:**
+Run the docker container in the custom network
+   ```bash
+   docker run --name home-library-db --network home-library-network --env-file .env -p 5432:5432 -d home-library-postgres:1.0
+   ```
+
+### Home Library Service (Application)
+
+1. **Build the Docker image:**
+
+Build the image from the specific path of the project
+
+   ```bash
+   docker build -t home-library-svc:1.0  -f ./docker/app/Dockerfile .
+   ```
+
+2. **Run the Docker container:**
+Run the docker container in the custom network
+   ```bash
+   docker run --name home-library-app --network pg-network --env-file .env -p 4000:4000 -d home-library-svc:1.0
+   ```

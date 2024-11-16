@@ -8,6 +8,13 @@
   "scripts": {
     "migration:generate": "npx typeorm-ts-node-commonjs migration:generate migrations/CreateTables -d src/typeorm.config.ts",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d src/typeorm.config.ts",
+    "docker:build:dev": "docker build -t home-library-svc-dev:1.0  -f ./docker/app/Dockerfile .",
+    "docker:build:prod": "docker build -t home-library-svc:1.0  -f ./docker/production/Dockerfile .",
+    "docker:compose:build":"docker-compose build",
+    "docker:compose:up":"docker-compose up",
+    "scan:vulnerabilities:audit": "npm audit",
+    "scan:vulnerabilities:dev": "docker scout cves home-library-svc-dev:1.0",
+    "scan:vulnerabilities:prod": "docker scout cves home-library-svc:1.0",
     "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",

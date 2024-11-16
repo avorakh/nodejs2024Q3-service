@@ -22,6 +22,8 @@ services:
       DB_HOST: home-library-db
     ports:
       - "${PORT}:4000"
+    volumes:
+      - .:/app 
     depends_on:
       - home-library-db
     networks:

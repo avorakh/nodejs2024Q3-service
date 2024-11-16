@@ -1,0 +1,37 @@
+services:
+  home-library-db:
+    image: postgres:17-alpine
+    env_file:
+      - ./dc-config.env
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - db_logs:/var/log/postgresql
+    networks:
+      - home-library-network
+    restart: always
+
+  home-library-app:
+    build:
+      context: .
+      dockerfile: ./docker/app/Dockerfile
+    env_file:
+      - ./dc-config.env
+    environment:
+      DB_HOST: home-library-db
+    ports:
+      - "${PORT}:4000"
+    depends_on:
+      - home-library-db
+    networks:
+      - home-library-network
+    restart: always
+
+networks:
+  home-library-network:
+    driver: bridge
+
+volumes:
+  db_data:
+  db_logs:

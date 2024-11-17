@@ -11,6 +11,8 @@ import { FavoriteArtistRepository } from './repository/favs.artist.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FavoriteArtist } from './entity/favorite.artist.entity';
 import { DataSourceModule } from '../orm/orm.datasource';
+import { FavoriteAlbum } from './entity/favorite.album.entity';
+import { FavoriteAlbumRepository } from './repository/favs.album.repository';
 
 @Module({
   imports: [DataSourceModule, TypeOrmModule.forFeature([FavoriteArtist])],
@@ -20,15 +22,11 @@ import { DataSourceModule } from '../orm/orm.datasource';
 export class FavoriteArtistRepositoryModule {}
 
 @Module({
-  providers: [
-    {
-      provide: 'AlbumFavoriteIdRepository',
-      useClass: InMemoryFavoriteIdRepository,
-    },
-  ],
-  exports: ['AlbumFavoriteIdRepository'],
+  imports: [DataSourceModule, TypeOrmModule.forFeature([FavoriteAlbum])],
+  providers: [FavoriteAlbumRepository],
+  exports: [FavoriteAlbumRepository],
 })
-export class AlbumFavoriteIdRepositoryModule {}
+export class FavoriteAlbumRepositoryModule {}
 
 @Module({
   providers: [
@@ -46,7 +44,7 @@ export class TrackFavoriteIdRepositoryModule {}
     ArtistRepositoryModule,
     FavoriteArtistRepositoryModule,
     AlbumRepositoryModule,
-    AlbumFavoriteIdRepositoryModule,
+    FavoriteAlbumRepositoryModule,
     TrackRepositoryModule,
     TrackFavoriteIdRepositoryModule,
   ],

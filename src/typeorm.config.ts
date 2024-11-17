@@ -5,6 +5,7 @@ import { Artist } from './artist/entity/artist.interface';
 import { Album } from './album/entity/album.interface';
 import { Track } from './track/entity/track.interface';
 import { FavoriteArtist } from './favs/entity/favorite.artist.entity';
+import { FavoriteAlbum } from './favs/entity/favorite.album.entity';
 
 config();
 
@@ -17,6 +18,6 @@ export const OrmDataSource: DataSource = new DataSource({
   database: process.env.DB_NAME,
   synchronize: process.env.DB_SYNCHRONIZE === 'true',
   logging: true,
-  entities: [User, Artist, Album, Track, FavoriteArtist],
+  entities: [User, Artist, Album, Track, FavoriteArtist, FavoriteAlbum],
   migrations: [__dirname + '/../migrations/*{.ts,.js}'],
 });

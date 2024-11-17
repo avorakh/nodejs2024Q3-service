@@ -26,7 +26,7 @@ export class ArtistService {
   }
 
   async create(artistDto: ArtistDto): Promise<Artist> {
-    const newArtist: Artist = {
+    const newArtist: Partial<Artist> = {
       id: uuidv4(),
       name: artistDto.name,
       grammy: artistDto.grammy,
@@ -49,12 +49,13 @@ export class ArtistService {
 
   async delete(id: string): Promise<void> {
     this.validateId(id);
+    await this.findArtist(id);
+    await this.albumService.hideArtistId(id);
+    await this.trackService.hideArtistId(id);
     const success = await this.artistRepository.delete(id);
     if (!success) {
       throw new ArtistNotFoundException();
     }
-    await this.albumService.hideArtistId(id);
-    await this.trackService.hideArtistId(id);
   }
 
   private validateId(id: string) {

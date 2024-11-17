@@ -7,17 +7,17 @@ import { InMemoryFavoriteIdRepository } from './repository/inmemory.favs.reposit
 import { ArtistRepositoryModule } from '../artist/artist.module';
 import { AlbumRepositoryModule } from '../album/album.module';
 import { TrackRepositoryModule } from '../track/track.module';
+import { FavoriteArtistRepository } from './repository/favs.artist.repository';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { FavoriteArtist } from './entity/favorite.artist.entity';
+import { DataSourceModule } from '../orm/orm.datasource';
 
 @Module({
-  providers: [
-    {
-      provide: 'ArtistFavoriteIdRepository',
-      useClass: InMemoryFavoriteIdRepository,
-    },
-  ],
-  exports: ['ArtistFavoriteIdRepository'],
+  imports: [DataSourceModule, TypeOrmModule.forFeature([FavoriteArtist])],
+  providers: [FavoriteArtistRepository],
+  exports: [FavoriteArtistRepository],
 })
-export class ArtistFavoriteIdRepositoryModule {}
+export class FavoriteArtistRepositoryModule {}
 
 @Module({
   providers: [
@@ -44,7 +44,7 @@ export class TrackFavoriteIdRepositoryModule {}
 @Module({
   imports: [
     ArtistRepositoryModule,
-    ArtistFavoriteIdRepositoryModule,
+    FavoriteArtistRepositoryModule,
     AlbumRepositoryModule,
     AlbumFavoriteIdRepositoryModule,
     TrackRepositoryModule,

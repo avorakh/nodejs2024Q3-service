@@ -12,6 +12,8 @@
     "docker:build:prod": "docker build -t home-library-svc:1.0  -f ./docker/production/Dockerfile .",
     "docker:compose:build":"docker-compose build",
     "docker:compose:up":"docker-compose up",
+    "docker:compose:up-background":"docker-compose up -d",
+    "docker:compose:down":"docker-compose down",
     "scan:vulnerabilities:audit": "npm audit",
     "scan:vulnerabilities:dev": "docker scout cves home-library-svc-dev:1.0",
     "scan:vulnerabilities:prod": "docker scout cves home-library-svc:1.0",

@@ -49,11 +49,12 @@ export class AlbumService {
 
   async delete(id: string): Promise<void> {
     this.validateId(id);
+    await this.findAlbum(id);
+    await this.trackService.hideAlbumId(id);
     const success = await this.albumRepository.delete(id);
     if (!success) {
       throw new AlbumNotFoundException();
     }
-    await this.trackService.hideAlbumId(id);
   }
 
   async hideArtistId(artistId: string): Promise<void> {

@@ -2,11 +2,12 @@ import { validate as isUuid } from 'uuid';
 import { FavoritesServiceInterface } from './favs.service.interface';
 import { Artist } from '../../artist/entity/artist.interface';
 import { ArtistRepository } from '../../artist/repository/artist.repository';
-import { FavoriteIdRepository } from '../repository/favs.repository';
 import { FavoriteItemNotFoundException } from '../error/favirite.not.found.error';
 import { InvalidIDException } from '../../error/invalid.id.error';
 import { HttpStatus } from '@nestjs/common';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { FavoriteArtistRepository } from '../repository/favs.artist.repository';
+import { FavoriteArtist } from '../entity/favorite.artist.entity';
 
 @Injectable()
 export class ArtistFavoritesService
@@ -14,18 +15,13 @@ export class ArtistFavoritesService
 {
   constructor(
     private readonly artistRepository: ArtistRepository,
-    @Inject('ArtistFavoriteIdRepository')
-    private readonly artistTFavoriteIdRepository: FavoriteIdRepository,
+    private readonly favoriteArtistRepository: FavoriteArtistRepository,
   ) {}
 
   async getAll(): Promise<Artist[]> {
-    const favoriteIds: string[] = this.artistTFavoriteIdRepository.findAll();
-
-    const foundArtists: Artist[] = await this.artistRepository.findAll();
-
-    return foundArtists.filter((foundArtist) =>
-      favoriteIds.includes(foundArtist.id),
-    );
+    const favoriteArtists: FavoriteArtist[] =
+      await this.favoriteArtistRepository.findAll();
+    return favoriteArtists.map((favoriteArtist) => favoriteArtist.artist);
   }
 
   async addToFavorites(id: string): Promise<void> {
@@ -35,7 +31,7 @@ export class ArtistFavoritesService
     if (!foundArtist) {
       throw new FavoriteItemNotFoundException('Artist not found');
     }
-    this.artistTFavoriteIdRepository.create(id);
+    await this.favoriteArtistRepository.create(id);
   }
 
   async deleteFromFavorites(id: string): Promise<void> {
@@ -48,7 +44,7 @@ export class ArtistFavoritesService
         HttpStatus.NOT_FOUND,
       );
     }
-    this.artistTFavoriteIdRepository.delete(id);
+    this.favoriteArtistRepository.delete(id);
   }
 
   private validateId(id: string) {

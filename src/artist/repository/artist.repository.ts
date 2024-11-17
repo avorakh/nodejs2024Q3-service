@@ -18,7 +18,7 @@ export class ArtistRepository {
     return this.artistTypeormRepository.findOne({ where: { id } });
   }
 
-  async create(newUser: Artist): Promise<Artist> {
+  async create(newUser: Partial<Artist>): Promise<Artist> {
     const user = this.artistTypeormRepository.create(newUser);
     return this.artistTypeormRepository.save(user);
   }

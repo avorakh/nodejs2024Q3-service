@@ -1,5 +1,5 @@
 import { v4 as uuidv4, validate as isUuid } from 'uuid';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Artist } from '../entity/artist.interface';
 import { ArtistRepository } from '../repository/artist.repository';
 import { ArtistDto } from '../dto/artist.dto';
@@ -11,23 +11,22 @@ import { AlbumService } from 'src/album/svc/album.service';
 @Injectable()
 export class ArtistService {
   constructor(
-    @Inject('ArtistRepository')
     private readonly artistRepository: ArtistRepository,
     private readonly trackService: TrackService,
     private readonly albumService: AlbumService,
   ) {}
 
-  findAll(): Artist[] {
+  async findAll(): Promise<Artist[]> {
     return this.artistRepository.findAll();
   }
 
-  findById(id: string): Artist {
+  async findById(id: string): Promise<Artist> {
     this.validateId(id);
     return this.findArtist(id);
   }
 
-  create(artistDto: ArtistDto): Artist {
-    const newArtist: Artist = {
+  async create(artistDto: ArtistDto): Promise<Artist> {
+    const newArtist: Partial<Artist> = {
       id: uuidv4(),
       name: artistDto.name,
       grammy: artistDto.grammy,
@@ -35,10 +34,10 @@ export class ArtistService {
     return this.artistRepository.create(newArtist);
   }
 
-  update(id: string, artistDto: ArtistDto): Artist {
+  async update(id: string, artistDto: ArtistDto): Promise<Artist> {
     this.validateId(id);
-    this.findArtist(id);
-    const updatedArtist = this.artistRepository.update(id, {
+    await this.findArtist(id);
+    const updatedArtist = await this.artistRepository.update(id, {
       name: artistDto.name,
       grammy: artistDto.grammy,
     });
@@ -48,14 +47,15 @@ export class ArtistService {
     return updatedArtist;
   }
 
-  delete(id: string): void {
+  async delete(id: string): Promise<void> {
     this.validateId(id);
-    const success = this.artistRepository.delete(id);
+    await this.findArtist(id);
+    await this.albumService.hideArtistId(id);
+    await this.trackService.hideArtistId(id);
+    const success = await this.artistRepository.delete(id);
     if (!success) {
       throw new ArtistNotFoundException();
     }
-    this.albumService.hideArtistId(id);
-    this.trackService.hideArtistId(id);
   }
 
   private validateId(id: string) {
@@ -64,8 +64,8 @@ export class ArtistService {
     }
   }
 
-  private findArtist(id: string): Artist {
-    const foundArtist = this.artistRepository.findById(id);
+  private async findArtist(id: string): Promise<Artist> {
+    const foundArtist = await this.artistRepository.findById(id);
     if (!foundArtist) {
       throw new ArtistNotFoundException();
     }

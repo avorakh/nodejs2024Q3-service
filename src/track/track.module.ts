@@ -1,16 +1,15 @@
 import { Module } from '@nestjs/common';
 import { TrackController } from './controller/track.controller';
 import { TrackService } from './svc/track.service';
-import { InMemoryTrackRepository } from './repository/inmemory.track.repository';
+import { Track } from './entity/track.interface';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { DataSourceModule } from '../orm/orm.datasource';
+import { TrackRepository } from './repository/track.repository';
 
 @Module({
-  providers: [
-    {
-      provide: 'TrackRepository',
-      useClass: InMemoryTrackRepository,
-    },
-  ],
-  exports: ['TrackRepository'],
+  imports: [DataSourceModule, TypeOrmModule.forFeature([Track])],
+  providers: [TrackRepository],
+  exports: [TrackRepository],
 })
 export class TrackRepositoryModule {}
 

@@ -1,7 +1,7 @@
 export interface FavoritesServiceInterface<T> {
-  getAll(): T[];
+  getAll(): Promise<T[]>;
 
-  addToFavorites(id: string): void;
+  addToFavorites(id: string): Promise<void>;
 
-  deleteFromFavorites(id: string): void;
+  deleteFromFavorites(id: string): Promise<void>;
 }

@@ -1,5 +1,5 @@
 import { v4 as uuidv4, validate as isUuid } from 'uuid';
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Track } from '../entity/track.interface';
 import { TrackRepository } from '../repository/track.repository';
 import { TrackDto } from '../dto/track.dto';
@@ -8,21 +8,18 @@ import { TrackNotFoundException } from '../error/track.not.found.error';
 
 @Injectable()
 export class TrackService {
-  constructor(
-    @Inject('TrackRepository')
-    private readonly trackRepository: TrackRepository,
-  ) {}
+  constructor(private readonly trackRepository: TrackRepository) {}
 
-  findAll(): Track[] {
+  async findAll(): Promise<Track[]> {
     return this.trackRepository.findAll();
   }
 
-  findById(id: string): Track {
+  async findById(id: string): Promise<Track> {
     this.validateId(id);
     return this.findTrack(id);
   }
 
-  create(trackDto: TrackDto): Track {
+  async create(trackDto: TrackDto): Promise<Track> {
     const newTrack: Track = {
       id: uuidv4(),
       name: trackDto.name,
@@ -33,10 +30,10 @@ export class TrackService {
     return this.trackRepository.create(newTrack);
   }
 
-  update(id: string, trackDto: TrackDto): Track {
+  async update(id: string, trackDto: TrackDto): Promise<Track> {
     this.validateId(id);
-    this.findTrack(id);
-    const updatedTrack = this.trackRepository.update(id, {
+    await this.findTrack(id);
+    const updatedTrack = await this.trackRepository.update(id, {
       name: trackDto.name,
       duration: trackDto.duration,
       artistId: trackDto.artistId,
@@ -48,32 +45,32 @@ export class TrackService {
     return updatedTrack;
   }
 
-  delete(id: string): void {
+  async delete(id: string): Promise<void> {
     this.validateId(id);
-    const success = this.trackRepository.delete(id);
+    const success = await this.trackRepository.delete(id);
     if (!success) {
       throw new TrackNotFoundException();
     }
   }
 
-  hideAlbumId(albumId: string): void {
-    const foundTracks = this.findAll().filter(
-      (foundTrack) => foundTrack.albumId === albumId,
-    );
-    foundTracks.forEach((foundTrack) => {
-      foundTrack.albumId = null;
-      this.trackRepository.update(foundTrack.id, foundTrack);
-    });
+  async hideAlbumId(albumId: string): Promise<void> {
+    const foundTracks = await this.findAll();
+    foundTracks
+      .filter((foundTrack) => foundTrack.albumId === albumId)
+      .forEach(async (foundTrack) => {
+        foundTrack.albumId = null;
+        await this.trackRepository.update(foundTrack.id, foundTrack);
+      });
   }
 
-  hideArtistId(artistId: string): void {
-    const foundTracks = this.findAll().filter(
-      (foundTrack) => foundTrack.artistId === artistId,
-    );
-    foundTracks.forEach((foundTrack) => {
-      foundTrack.artistId = null;
-      this.trackRepository.update(foundTrack.id, foundTrack);
-    });
+  async hideArtistId(artistId: string): Promise<void> {
+    const foundTracks = await this.findAll();
+    foundTracks
+      .filter((foundTrack) => foundTrack.artistId === artistId)
+      .forEach(async (foundTrack) => {
+        foundTrack.artistId = null;
+        await this.trackRepository.update(foundTrack.id, foundTrack);
+      });
   }
 
   private validateId(id: string) {
@@ -82,8 +79,8 @@ export class TrackService {
     }
   }
 
-  private findTrack(id: string): Track {
-    const foundAlbum = this.trackRepository.findById(id);
+  private async findTrack(id: string): Promise<Track> {
+    const foundAlbum = await this.trackRepository.findById(id);
     if (!foundAlbum) {
       throw new TrackNotFoundException();
     }

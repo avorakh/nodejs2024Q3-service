@@ -2,26 +2,25 @@ import { validate as isUuid } from 'uuid';
 import { FavoritesServiceInterface } from './favs.service.interface';
 import { Track } from '../../track/entity/track.interface';
 import { TrackRepository } from '../../track/repository/track.repository';
-import { FavoriteIdRepository } from '../repository/favs.repository';
 import { FavoriteItemNotFoundException } from '../error/favirite.not.found.error';
 import { InvalidIDException } from '../../error/invalid.id.error';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { HttpStatus } from '@nestjs/common';
+import { FavoriteTrack } from '../entity/favorite.track.entity';
+import { FavoriteTrackRepository } from '../repository/favs.track.repository';
 
 @Injectable()
 export class TrackFavoritesService implements FavoritesServiceInterface<Track> {
   constructor(
     private readonly trackRepository: TrackRepository,
-    @Inject('TrackFavoriteIdRepository')
-    private readonly trackFavoriteIdRepository: FavoriteIdRepository,
+    private readonly favoriteTrackRepository: FavoriteTrackRepository,
   ) {}
 
   async getAll(): Promise<Track[]> {
-    const favoriteIds: string[] = this.trackFavoriteIdRepository.findAll();
-    const foundTracks: Track[] = await this.trackRepository.findAll();
-    return foundTracks.filter((foundTrack) =>
-      favoriteIds.includes(foundTrack.id),
-    );
+    const favoriteTracks: FavoriteTrack[] =
+      await this.favoriteTrackRepository.findAll();
+
+    return favoriteTracks.map((favoriteTrack) => favoriteTrack.track);
   }
 
   async addToFavorites(id: string): Promise<void> {
@@ -31,7 +30,7 @@ export class TrackFavoritesService implements FavoritesServiceInterface<Track> {
     if (!foundTrack) {
       throw new FavoriteItemNotFoundException('Track not found');
     }
-    this.trackFavoriteIdRepository.create(id);
+    await this.favoriteTrackRepository.create(id);
   }
 
   async deleteFromFavorites(id: string): Promise<void> {
@@ -44,7 +43,7 @@ export class TrackFavoritesService implements FavoritesServiceInterface<Track> {
         HttpStatus.NOT_FOUND,
       );
     }
-    this.trackFavoriteIdRepository.delete(id);
+    await this.favoriteTrackRepository.delete(id);
   }
 
   private validateId(id: string) {

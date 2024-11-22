@@ -8,6 +8,7 @@ import { readFile } from 'fs/promises';
 import { resolve } from 'path';
 import { load } from 'js-yaml';
 import { LoggingService } from './logging.service';
+import { LoggingInterceptor } from './log/logging.interceptor';
 
 const logger = new Logger('main/bootstrap');
 
@@ -27,6 +28,8 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  app.useGlobalInterceptors(new LoggingInterceptor());
 
   app.useGlobalFilters(new ServiceHttpExceptionFilter());
 

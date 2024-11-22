@@ -7,14 +7,19 @@ import { serve, setup } from 'swagger-ui-express';
 import { readFile } from 'fs/promises';
 import { resolve } from 'path';
 import { load } from 'js-yaml';
+import { LoggingService } from './logging.service';
 
 const logger = new Logger('main/bootstrap');
+
 config();
 
 const WEB_SERVER_PORT = process.env.PORT || 4000;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.useLogger(new LoggingService());
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

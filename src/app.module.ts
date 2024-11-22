@@ -7,9 +7,11 @@ import { AlbumModule } from './album/album.module';
 import { TrackModule } from './track/track.module';
 import { FavoritesModule } from './favs/favs.module';
 import { DataSourceModule } from './orm/orm.datasource';
+import { LoggerModule } from './log/logger.module';
 
 @Module({
   imports: [
+    LoggerModule,
     DataSourceModule,
     UsersModule,
     ArtistModule,

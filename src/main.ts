@@ -21,6 +21,14 @@ async function bootstrap() {
 
   app.useLogger(new LoggingService());
 
+  process.on('uncaughtException', (error) => {
+    logger.error('Uncaught Exception:', error);
+  });
+
+  process.on('unhandledRejection', (reason, promise) => {
+    logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -45,7 +53,7 @@ async function bootstrap() {
     const openApiDocument = load(fileContent);
     app.use('/doc', serve, setup(openApiDocument));
   } catch (error) {
-    console.error('Error loading OpenAPI file:', error);
+    logger.error('Error loading OpenAPI file:', error);
   }
   await app.listen(WEB_SERVER_PORT);
   logger.log(`Server is running on port: ${WEB_SERVER_PORT}`);

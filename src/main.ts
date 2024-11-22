@@ -2,13 +2,13 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { config } from 'dotenv';
-import { ServiceHttpExceptionFilter } from './error/service.exception.filter';
 import { serve, setup } from 'swagger-ui-express';
 import { readFile } from 'fs/promises';
 import { resolve } from 'path';
 import { load } from 'js-yaml';
 import { LoggingService } from './logging.service';
 import { LoggingInterceptor } from './log/logging.interceptor';
+import { GlobalExceptionFilter } from './error/global.exception.filter';
 
 const logger = new Logger('main/bootstrap');
 
@@ -31,7 +31,7 @@ async function bootstrap() {
 
   app.useGlobalInterceptors(new LoggingInterceptor());
 
-  app.useGlobalFilters(new ServiceHttpExceptionFilter());
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
   app.enableCors({
     origin: '*',

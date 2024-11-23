@@ -30,7 +30,7 @@ export class AuthenticationService {
       .then((foundUser) => this.generateTokenPair(foundUser));
   }
 
-  async refreshToken(refreshToken): Promise<TokenResponseModel> {
+  async refreshToken(refreshToken: string): Promise<TokenResponseModel> {
     const { userId, login } =
       this.refreshJwtTokenGenerator.verifyJwtToken(refreshToken);
 

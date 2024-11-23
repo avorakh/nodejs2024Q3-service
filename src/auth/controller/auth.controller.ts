@@ -4,6 +4,10 @@ import { UsersService } from 'src/user/svc/users.service';
 import { AuthenticationService } from '../svc/auth.svc';
 import { BadRefreshTokenException } from '../error/auth.exception';
 
+interface RefreshTokenDto {
+  refreshToken: string | null;
+}
+
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -26,7 +30,7 @@ export class AuthController {
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  async refresh(@Body() refreshTokenDto?) {
+  async refresh(@Body() refreshTokenDto?: RefreshTokenDto | undefined) {
     if (!refreshTokenDto || !refreshTokenDto.refreshToken) {
       throw new BadRefreshTokenException();
     }

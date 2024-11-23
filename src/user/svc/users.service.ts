@@ -1,4 +1,4 @@
-import { v4 as uuidv4, validate as isUuid } from 'uuid';
+import { validate as isUuid } from 'uuid';
 import { Injectable } from '@nestjs/common';
 import { UserModel } from '../model/user.interface';
 import { CreateUserDto } from '../dto/create-user.dto';
@@ -8,10 +8,15 @@ import { UserNotFoundException } from '../error/user.not.found.error';
 import { IncorrectOldPasswordException } from '../error/incorrect.old.password.error';
 import { User } from '../entity/user.entity';
 import { UserRepository } from '../repository/user.repository';
+import { PasswordManager } from './password.managet';
+import { UserLoginAlreadyExistException } from '../error/user.login.already.exist.error';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly passwordManager: PasswordManager,
+  ) {}
 
   async findAll(): Promise<UserModel[]> {
     const foundUsers = await this.userRepository.findAll();
@@ -25,13 +30,21 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto): Promise<UserModel> {
-    const newUser: User = {
-      id: uuidv4(),
+    const login: string = createUserDto.login;
+
+    const foundUser = await this.userRepository.findByLogin(login);
+
+    if (foundUser) {
+      throw new UserLoginAlreadyExistException();
+    }
+
+    const hashPassword = await this.passwordManager.hashPassword(
+      createUserDto.password,
+    );
+
+    const newUser: Partial<User> = {
       login: createUserDto.login,
-      password: createUserDto.password,
-      version: 1,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      password: hashPassword,
     };
     const createdUser = await this.userRepository.create(newUser);
     return convert(createdUser);
@@ -43,11 +56,20 @@ export class UsersService {
   ): Promise<UserModel> {
     this.validateId(id);
     const user = await this.findUser(id);
-    if (user.password !== updatePasswordDto.oldPassword)
+    const isValidOldPassword: boolean =
+      await this.passwordManager.comparePassword(
+        updatePasswordDto.oldPassword,
+        user.password,
+      );
+    if (!isValidOldPassword) {
       throw new IncorrectOldPasswordException();
+    }
 
+    const newHashedPassword: string = await this.passwordManager.hashPassword(
+      updatePasswordDto.newPassword,
+    );
     const updatedUser = await this.userRepository.update(id, {
-      password: updatePasswordDto.newPassword,
+      password: newHashedPassword,
     });
     if (!updatedUser) {
       throw new UserNotFoundException();

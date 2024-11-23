@@ -18,7 +18,11 @@ export class UserRepository {
     return this.userTypeormRepository.findOne({ where: { id } });
   }
 
-  async create(newUser: User): Promise<User> {
+  async findByLogin(login: string): Promise<User | undefined> {
+    return this.userTypeormRepository.findOne({ where: { login } });
+  }
+
+  async create(newUser: Partial<User>): Promise<User> {
     const user = this.userTypeormRepository.create(newUser);
     return this.userTypeormRepository.save(user);
   }

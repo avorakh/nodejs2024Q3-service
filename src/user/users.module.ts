@@ -22,7 +22,13 @@ export class PasswordManagerModule {}
 
 @Module({
   imports: [UserRepositoryModule, PasswordManagerModule],
-  controllers: [UsersController],
   providers: [UsersService],
+  exports: [UsersService],
+})
+export class UsersServiceModule {}
+
+@Module({
+  imports: [UsersServiceModule],
+  controllers: [UsersController],
 })
 export class UsersModule {}

@@ -1,7 +1,7 @@
 import { validate as isUuid } from 'uuid';
 import { Injectable } from '@nestjs/common';
 import { UserModel } from '../model/user.interface';
-import { CreateUserDto } from '../dto/create-user.dto';
+import { UserDto } from '../dto/create-user.dto';
 import { UpdatePasswordDto } from '../dto/update-password.dto';
 import { InvalidIDException } from '../../error/invalid.id.error';
 import { UserNotFoundException } from '../error/user.not.found.error';
@@ -29,7 +29,7 @@ export class UsersService {
     return convert(user);
   }
 
-  async create(createUserDto: CreateUserDto): Promise<UserModel> {
+  async create(createUserDto: UserDto): Promise<UserModel> {
     const login: string = createUserDto.login;
 
     const foundUser = await this.userRepository.findByLogin(login);

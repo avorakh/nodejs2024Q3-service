@@ -1,12 +1,13 @@
-import { sign, SignOptions } from 'jsonwebtoken';
+import { sign, SignOptions, verify } from 'jsonwebtoken';
 import { Injectable } from '@nestjs/common';
+import { InvalidOrExpiredTokenException } from '../error/auth.exception';
 
 export enum TokenType {
   ACCESS = 'access',
   REFRESH = 'refresh',
 }
 
-interface TokenPayload {
+export interface TokenPayload {
   type: TokenType;
   userId: string;
   login: string;
@@ -44,6 +45,22 @@ class JwtTokenGenerator {
       login,
     };
     return sign(payload, this.getSecretKey(), this.getDefaultSignOptions());
+  }
+
+  verifyJwtToken(encodedToken: string): TokenPayload {
+    let decodedToken: TokenPayload;
+
+    try {
+      decodedToken = verify(encodedToken, this.getSecretKey()) as TokenPayload;
+    } catch (err) {
+      throw new InvalidOrExpiredTokenException();
+    }
+
+    if (!decodedToken || decodedToken.type !== this.getTokenType()) {
+      throw new InvalidOrExpiredTokenException();
+    }
+
+    return decodedToken;
   }
 
   private getTokenType(): TokenType {

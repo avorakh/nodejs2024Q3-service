@@ -2,6 +2,7 @@ import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { UserDto } from 'src/user/dto/create-user.dto';
 import { UsersService } from 'src/user/svc/users.service';
 import { AuthenticationService } from '../svc/auth.svc';
+import { BadRefreshTokenException } from '../error/auth.exception';
 
 @Controller('auth')
 export class AuthController {
@@ -21,5 +22,16 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async login(@Body() userDto: UserDto) {
     return await this.authenticationService.login(userDto);
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  async refresh(@Body() refreshTokenDto?) {
+    if (!refreshTokenDto || !refreshTokenDto.refreshToken) {
+      throw new BadRefreshTokenException();
+    }
+
+    const { refreshToken } = refreshTokenDto;
+    return await this.authenticationService.refreshToken(refreshToken);
   }
 }

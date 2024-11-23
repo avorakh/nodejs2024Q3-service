@@ -3,7 +3,10 @@ import { UserDto } from 'src/user/dto/create-user.dto';
 import { UserRepository } from 'src/user/repository/user.repository';
 import { PasswordManager } from 'src/user/svc/password.managet';
 import { TokenResponseModel } from '../model/token.response.model';
-import { AuthenticationFailedException } from '../error/auth.exception';
+import {
+  AuthenticationFailedException,
+  InvalidOrExpiredTokenException,
+} from '../error/auth.exception';
 import { User } from 'src/user/entity/user.entity';
 import {
   AccessJwtTokenGenerator,
@@ -24,6 +27,21 @@ export class AuthenticationService {
 
     return this.findUser(login)
       .then((foundUser) => this.verifyPassword(foundUser, password))
+      .then((foundUser) => this.generateTokenPair(foundUser));
+  }
+
+  async refreshToken(refreshToken): Promise<TokenResponseModel> {
+    const { userId, login } =
+      this.refreshJwtTokenGenerator.verifyJwtToken(refreshToken);
+
+    return this.userRepository
+      .findByIdAndLogin(userId, login)
+      .then((foundUser): User => {
+        if (!foundUser) {
+          throw new InvalidOrExpiredTokenException();
+        }
+        return foundUser;
+      })
       .then((foundUser) => this.generateTokenPair(foundUser));
   }
 

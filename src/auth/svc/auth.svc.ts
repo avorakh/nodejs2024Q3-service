@@ -45,6 +45,19 @@ export class AuthenticationService {
       .then((foundUser) => this.generateTokenPair(foundUser));
   }
 
+  async verify(accessToken: string): Promise<void> {
+    const { userId, login } =
+      this.accessJwtTokenGenerator.verifyJwtToken(accessToken);
+
+    return this.userRepository
+      .findByIdAndLogin(userId, login)
+      .then((foundUser): void => {
+        if (!foundUser) {
+          throw new InvalidOrExpiredTokenException();
+        }
+      });
+  }
+
   private findUser(login: string): Promise<User> {
     return this.userRepository.findByLogin(login).then((foundUser): User => {
       if (!foundUser) {

@@ -1,5 +1,5 @@
 import { sign, SignOptions, verify } from 'jsonwebtoken';
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InvalidOrExpiredTokenException } from '../error/auth.exception';
 
 export enum TokenType {
@@ -57,7 +57,14 @@ class JwtTokenGenerator {
     }
 
     if (!decodedToken || decodedToken.type !== this.getTokenType()) {
-      throw new InvalidOrExpiredTokenException();
+      const httpStatus =
+        this.getTokenType() === TokenType.REFRESH
+          ? HttpStatus.FORBIDDEN
+          : HttpStatus.UNAUTHORIZED;
+      throw new InvalidOrExpiredTokenException(
+        'Token is invalid or expired.',
+        httpStatus,
+      );
     }
 
     return decodedToken;

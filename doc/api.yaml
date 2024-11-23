@@ -130,43 +130,60 @@ components:
 #   - bearerAuth: []
 
 paths:
-  # /login:
-  #   post:
-  #     tags:
-  #       - Login
-  #     security: []
-  #     summary: Login
-  #     description: Logins a user and returns a JWT-token
-  #     requestBody:
-  #       required: true
-  #       content:
-  #         application/json:
-  #           schema:
-  #             type: object
-  #             title: example
-  #             properties:
-  #               login:
-  #                 type: string
-  #                 description: Username
-  #               password:
-  #                 type: string
-  #                 description: Password
-  #             required:
-  #               - user
-  #               - login
-  #     responses:
-  #       200:
-  #         description: Successful login.
-  #         content:
-  #           application/json:
-  #             schema:
-  #               type: object
-  #               properties:
-  #                 token:
-  #                   type: string
-  #               description: JWT Token
-  #       403:
-  #         description: Incorrect login or password
+  /auth/login:
+    post:
+      tags:
+        - auth
+      security: []
+      summary: Login
+      description: Logins a user and returns a JWT-token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              title: example
+              properties:
+                login:
+                  type: string
+                  description: Username
+                password:
+                  type: string
+                  description: Password
+              required:
+                - user
+                - login
+      responses:
+        200:
+          description: Successful login.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    description: Access JWT token
+                  refreshToken:
+                    type: string
+                    description: Refresh JWT token
+                description: Login response
+                required:
+                - accessToken
+                - refreshToken
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Incorrect login or password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /auth/signup:
     post:
       tags:

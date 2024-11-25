@@ -24,6 +24,7 @@ services:
       - "${PORT}:4000"
     volumes:
       - .:/app 
+      - ./logs:/app/logs
     depends_on:
       - home-library-db
     networks:
@@ -37,3 +38,4 @@ networks:
 volumes:
   db_data:
   db_logs:
+  app_logs:

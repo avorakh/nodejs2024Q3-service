@@ -6,9 +6,11 @@ import { ArtistModule } from './artist/artist.module';
 import { AlbumModule } from './album/album.module';
 import { TrackModule } from './track/track.module';
 import { FavoritesModule } from './favs/favs.module';
+import { DataSourceModule } from './orm/orm.datasource';
 
 @Module({
   imports: [
+    DataSourceModule,
     UsersModule,
     ArtistModule,
     AlbumModule,

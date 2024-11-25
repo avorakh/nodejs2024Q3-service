@@ -1,17 +1,17 @@
 import { Module } from '@nestjs/common';
 import { ArtistController } from './controller/artist.controller';
 import { ArtistService } from './svc/artist.service';
-import { InMemoryArtistRepository } from './repository/inmemory.artist.repository';
+import { ArtistRepository } from './repository/artist.repository';
 import { TrackServiceModule } from '../track/track.module';
 import { AlbumServiceModule } from '../album/album.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Artist } from './entity/artist.interface';
+import { DataSourceModule } from '../orm/orm.datasource';
+
 @Module({
-  providers: [
-    {
-      provide: 'ArtistRepository',
-      useClass: InMemoryArtistRepository,
-    },
-  ],
-  exports: ['ArtistRepository'],
+  imports: [DataSourceModule, TypeOrmModule.forFeature([Artist])],
+  providers: [ArtistRepository],
+  exports: [ArtistRepository],
 })
 export class ArtistRepositoryModule {}
 

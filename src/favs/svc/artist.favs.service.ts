@@ -2,44 +2,41 @@ import { validate as isUuid } from 'uuid';
 import { FavoritesServiceInterface } from './favs.service.interface';
 import { Artist } from '../../artist/entity/artist.interface';
 import { ArtistRepository } from '../../artist/repository/artist.repository';
-import { FavoriteIdRepository } from '../repository/favs.repository';
 import { FavoriteItemNotFoundException } from '../error/favirite.not.found.error';
 import { InvalidIDException } from '../../error/invalid.id.error';
 import { HttpStatus } from '@nestjs/common';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { FavoriteArtistRepository } from '../repository/favs.artist.repository';
+import { FavoriteArtist } from '../entity/favorite.artist.entity';
 
 @Injectable()
 export class ArtistFavoritesService
   implements FavoritesServiceInterface<Artist>
 {
   constructor(
-    @Inject('ArtistRepository')
     private readonly artistRepository: ArtistRepository,
-    @Inject('ArtistFavoriteIdRepository')
-    private readonly artistTFavoriteIdRepository: FavoriteIdRepository,
+    private readonly favoriteArtistRepository: FavoriteArtistRepository,
   ) {}
 
-  getAll(): Artist[] {
-    const favoriteIds: string[] = this.artistTFavoriteIdRepository.findAll();
-
-    return this.artistRepository
-      .findAll()
-      .filter((foundArtist) => favoriteIds.includes(foundArtist.id));
+  async getAll(): Promise<Artist[]> {
+    const favoriteArtists: FavoriteArtist[] =
+      await this.favoriteArtistRepository.findAll();
+    return favoriteArtists.map((favoriteArtist) => favoriteArtist.artist);
   }
 
-  addToFavorites(id: string): void {
+  async addToFavorites(id: string): Promise<void> {
     this.validateId(id);
-    const foundArtist = this.artistRepository.findById(id);
+    const foundArtist = await this.artistRepository.findById(id);
 
     if (!foundArtist) {
       throw new FavoriteItemNotFoundException('Artist not found');
     }
-    this.artistTFavoriteIdRepository.create(id);
+    await this.favoriteArtistRepository.create(id);
   }
 
-  deleteFromFavorites(id: string): void {
+  async deleteFromFavorites(id: string): Promise<void> {
     this.validateId(id);
-    const foundArtist = this.artistRepository.findById(id);
+    const foundArtist = await this.artistRepository.findById(id);
 
     if (!foundArtist) {
       throw new FavoriteItemNotFoundException(
@@ -47,7 +44,7 @@ export class ArtistFavoritesService
         HttpStatus.NOT_FOUND,
       );
     }
-    this.artistTFavoriteIdRepository.delete(id);
+    this.favoriteArtistRepository.delete(id);
   }
 
   private validateId(id: string) {

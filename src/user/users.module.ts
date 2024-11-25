@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entity/user.entity';
 import { DataSourceModule } from '../orm/orm.datasource';
 import { UserRepository } from './repository/user.repository';
+import { PasswordManager } from './svc/password.managet';
 
 @Module({
   imports: [DataSourceModule, TypeOrmModule.forFeature([User])],
@@ -14,8 +15,20 @@ import { UserRepository } from './repository/user.repository';
 export class UserRepositoryModule {}
 
 @Module({
-  imports: [UserRepositoryModule],
-  controllers: [UsersController],
+  providers: [PasswordManager],
+  exports: [PasswordManager],
+})
+export class PasswordManagerModule {}
+
+@Module({
+  imports: [UserRepositoryModule, PasswordManagerModule],
   providers: [UsersService],
+  exports: [UsersService],
+})
+export class UsersServiceModule {}
+
+@Module({
+  imports: [UsersServiceModule],
+  controllers: [UsersController],
 })
 export class UsersModule {}

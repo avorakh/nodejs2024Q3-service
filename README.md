@@ -23,14 +23,21 @@ npm install
 ## Application configuration
 Please see the application variables:
 
-| Name           | Presence   | Notes                                                                 |
-|----------------|------------|-----------------------------------------------------------------------|
-| PORT           | Optional   | 4000 as default                                                       |
-| DB_HOST        | Mandatory  | Database host                                                         |
-| DB_PORT        | Mandatory  | Database port                                                         |
-| DB_USERNAME    | Mandatory  | Database username                                                     |
-| DB_PASSWORD    | Mandatory  | Database password                                                     |
-| DB_NAME        | Mandatory  | Database name                                                         |
+| Name                     | Presence          | Notes                                                               |
+|--------------------------|-------------------|---------------------------------------------------------------------|
+| `PORT`                   | Optional          | `4000` as default.                                                  |
+| `LOG_LEVEL`              | Optional          | Number. `VERBOSE(0)`, `DEBUG(1)` as default, `LOG(2)`, `WARN(3)`, `ERROR(4)`. |
+| `LOG_DIR`                | Optional          | `'logs'` as default. Logs folder.                                   |
+| `MAX_FILE_SIZE`          | Optional          | `'1048576'` (in bytes or 1 MB) as default. Logs file size.          |
+| `JWT_SECRET_KEY`         | Mandatory         | JWT secret key for access tokens.                                   |
+| `JWT_SECRET_REFRESH_KEY` | Mandatory         | JWT secret key for refresh tokens.                                  |
+| `TOKEN_EXPIRE_TIME`      | Optional          | `'15m'` as default. Access token TTL.                               |
+| `TOKEN_REFRESH_EXPIRE_TIME` | Optional       | `'8h'` as default. Refresh token TTL.                               |
+| `DB_HOST`                | Mandatory         | Database host.                                                      |
+| `DB_PORT`                | Mandatory         | Database port.                                                      |
+| `DB_USERNAME`            | Mandatory         | Database username.                                                  |
+| `DB_PASSWORD`            | Mandatory         | Database password.                                                  |
+| `DB_NAME`                | Mandatory         | Database name.                                                      |
 | DB_SYNCHRONIZE | Optional   | If set to 'true', automatically synchronizes the database schema with the current state of the entities. Disabled by default |
 
 > Please configure the `.evv` file to run locally without containerization.
@@ -64,20 +71,7 @@ npm run docker:compose:up
 
 After application running open new terminal and enter:
 
-To run all tests without authorization
-
-```
-npm run test
-```
-
-To run only one of all test suites
-
-```
-npm run test -- <path to suite>
-```
-
 To run all test with authorization
-> This component will be fixed in Part 3
 
 ```
 npm run test:auth
@@ -87,6 +81,20 @@ To run only specific test suite with authorization
 
 ```
 npm run test:auth -- <path to suite>
+```
+
+
+To run all tests without authorization
+> DON'T RUN IT
+> This should be failed.
+```
+npm run test
+```
+
+To run only one of all test suites
+
+```
+npm run test -- <path to suite>
 ```
 
 ### Auto-fix and format

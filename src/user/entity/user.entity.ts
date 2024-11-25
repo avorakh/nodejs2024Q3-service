@@ -5,14 +5,16 @@ import {
   UpdateDateColumn,
   CreateDateColumn,
   VersionColumn,
+  Index,
 } from 'typeorm';
 
 @Entity('users')
+@Index('IDX_USER_LOGIN', ['login'])
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ unique: true })
   login: string;
 
   @Column()

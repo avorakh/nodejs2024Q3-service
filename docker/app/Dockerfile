@@ -21,6 +21,13 @@ COPY --from=intaller /app/node_modules ./node_modules
 # Copy the rest of the application code to the working directory
 COPY . .
 
+
+# Create a directory for logs
+RUN mkdir -p /app/logs
+
+# Set permissions for the logs directory
+RUN chmod -R 755 /app/logs
+
 # Expose the port the app runs on
 EXPOSE 4000
 

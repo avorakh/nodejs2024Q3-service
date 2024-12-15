@@ -1,63 +1,85 @@
-import { v4 as uuidv4, validate as isUuid } from 'uuid';
-import { Inject, Injectable } from '@nestjs/common';
-import { User } from '../entity/user.interface';
-import { UserRepository } from '../repository/user.repository.interface';
-import { CreateUserDto } from '../dto/create-user.dto';
+import { validate as isUuid } from 'uuid';
+import { Injectable } from '@nestjs/common';
+import { UserModel } from '../model/user.interface';
+import { UserDto } from '../dto/create-user.dto';
 import { UpdatePasswordDto } from '../dto/update-password.dto';
 import { InvalidIDException } from '../../error/invalid.id.error';
 import { UserNotFoundException } from '../error/user.not.found.error';
 import { IncorrectOldPasswordException } from '../error/incorrect.old.password.error';
+import { User } from '../entity/user.entity';
+import { UserRepository } from '../repository/user.repository';
+import { PasswordManager } from './password.managet';
+import { UserLoginAlreadyExistException } from '../error/user.login.already.exist.error';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @Inject('UserRepository') private readonly userRepository: UserRepository,
+    private readonly userRepository: UserRepository,
+    private readonly passwordManager: PasswordManager,
   ) {}
 
-  findAll(): Omit<User, 'password'>[] {
-    return this.userRepository.findAll().map(this.hidePassword);
+  async findAll(): Promise<UserModel[]> {
+    const foundUsers = await this.userRepository.findAll();
+    return foundUsers.map(convert);
   }
 
-  findById(id: string): Omit<User, 'password'> {
+  async findById(id: string): Promise<UserModel> {
     this.validateId(id);
-    const user = this.findUser(id);
-    return this.hidePassword(user);
+    const user = await this.findUser(id);
+    return convert(user);
   }
 
-  create(createUserDto: CreateUserDto): Omit<User, 'password'> {
-    const newUser: User = {
-      id: uuidv4(),
+  async create(createUserDto: UserDto): Promise<UserModel> {
+    const login: string = createUserDto.login;
+
+    const foundUser = await this.userRepository.findByLogin(login);
+
+    if (foundUser) {
+      throw new UserLoginAlreadyExistException();
+    }
+
+    const hashPassword = await this.passwordManager.hashPassword(
+      createUserDto.password,
+    );
+
+    const newUser: Partial<User> = {
       login: createUserDto.login,
-      password: createUserDto.password,
-      version: 1,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+      password: hashPassword,
     };
-    const createdUser = this.userRepository.create(newUser);
-    return this.hidePassword(createdUser);
+    const createdUser = await this.userRepository.create(newUser);
+    return convert(createdUser);
   }
 
-  updatePassword(
+  async updatePassword(
     id: string,
     updatePasswordDto: UpdatePasswordDto,
-  ): Omit<User, 'password'> {
+  ): Promise<UserModel> {
     this.validateId(id);
-    const user = this.findUser(id);
-    if (user.password !== updatePasswordDto.oldPassword)
+    const user = await this.findUser(id);
+    const isValidOldPassword: boolean =
+      await this.passwordManager.comparePassword(
+        updatePasswordDto.oldPassword,
+        user.password,
+      );
+    if (!isValidOldPassword) {
       throw new IncorrectOldPasswordException();
+    }
 
-    const updatedUser = this.userRepository.update(id, {
-      password: updatePasswordDto.newPassword,
+    const newHashedPassword: string = await this.passwordManager.hashPassword(
+      updatePasswordDto.newPassword,
+    );
+    const updatedUser = await this.userRepository.update(id, {
+      password: newHashedPassword,
     });
     if (!updatedUser) {
       throw new UserNotFoundException();
     }
-    return this.hidePassword(updatedUser);
+    return convert(updatedUser);
   }
 
-  delete(id: string): void {
+  async delete(id: string): Promise<void> {
     this.validateId(id);
-    const success = this.userRepository.delete(id);
+    const success = await this.userRepository.delete(id);
     if (!success) {
       throw new UserNotFoundException();
     }
@@ -69,21 +91,21 @@ export class UsersService {
     }
   }
 
-  private findUser(id: string) {
-    const user = this.userRepository.findById(id);
+  private async findUser(id: string): Promise<User> {
+    const user = await this.userRepository.findById(id);
     if (!user) {
       throw new UserNotFoundException();
     }
     return user;
   }
-
-  private hidePassword(user: User): Omit<User, 'password'> {
-    return {
-      id: user.id,
-      login: user.login,
-      version: user.version,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    } as Omit<User, 'password'>;
-  }
 }
+
+const convert = (user: User): UserModel => {
+  return {
+    id: user.id,
+    login: user.login,
+    version: user.version,
+    createdAt: user.createdAt.getTime(),
+    updatedAt: user.updatedAt.getTime(),
+  };
+};

@@ -1,5 +1,5 @@
 import { v4 as uuidv4, validate as isUuid } from 'uuid';
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InvalidIDException } from '../../error/invalid.id.error';
 import { Album } from '../entity/album.interface';
 import { AlbumDto } from '../dto/album.dto';
@@ -10,21 +10,20 @@ import { TrackService } from '../../track/svc/track.service';
 @Injectable()
 export class AlbumService {
   constructor(
-    @Inject('AlbumRepository')
     private readonly albumRepository: AlbumRepository,
     private readonly trackService: TrackService,
   ) {}
 
-  findAll(): Album[] {
+  async findAll(): Promise<Album[]> {
     return this.albumRepository.findAll();
   }
 
-  findById(id: string): Album {
+  async findById(id: string): Promise<Album> {
     this.validateId(id);
     return this.findAlbum(id);
   }
 
-  create(albumDto: AlbumDto): Album {
+  async create(albumDto: AlbumDto): Promise<Album> {
     const newAlbum: Album = {
       id: uuidv4(),
       name: albumDto.name,
@@ -34,10 +33,10 @@ export class AlbumService {
     return this.albumRepository.create(newAlbum);
   }
 
-  update(id: string, albumDto: AlbumDto): Album {
+  async update(id: string, albumDto: AlbumDto): Promise<Album> {
     this.validateId(id);
-    this.findAlbum(id);
-    const updatedAlbum = this.albumRepository.update(id, {
+    await this.findAlbum(id);
+    const updatedAlbum = await this.albumRepository.update(id, {
       name: albumDto.name,
       year: albumDto.year,
       artistId: albumDto.artistId,
@@ -48,23 +47,25 @@ export class AlbumService {
     return updatedAlbum;
   }
 
-  delete(id: string): void {
+  async delete(id: string): Promise<void> {
     this.validateId(id);
-    const success = this.albumRepository.delete(id);
+    await this.findAlbum(id);
+    await this.trackService.hideAlbumId(id);
+    const success = await this.albumRepository.delete(id);
     if (!success) {
       throw new AlbumNotFoundException();
     }
-    this.trackService.hideAlbumId(id);
   }
 
-  hideArtistId(artistId: string): void {
-    const foundAlbums = this.findAll().filter(
-      (foundAlbum) => foundAlbum.artistId === artistId,
-    );
-    foundAlbums.forEach((foundAlbum) => {
-      foundAlbum.artistId = null;
-      this.albumRepository.update(foundAlbum.id, foundAlbum);
-    });
+  async hideArtistId(artistId: string): Promise<void> {
+    const foundAlbums = await this.findAll();
+
+    foundAlbums
+      .filter((foundAlbum) => foundAlbum.artistId === artistId)
+      .forEach(async (foundAlbum) => {
+        foundAlbum.artistId = null;
+        await this.albumRepository.update(foundAlbum.id, foundAlbum);
+      });
   }
 
   private validateId(id: string) {
@@ -73,8 +74,8 @@ export class AlbumService {
     }
   }
 
-  private findAlbum(id: string): Album {
-    const foundAlbum = this.albumRepository.findById(id);
+  private async findAlbum(id: string): Promise<Album> {
+    const foundAlbum = await this.albumRepository.findById(id);
     if (!foundAlbum) {
       throw new AlbumNotFoundException();
     }

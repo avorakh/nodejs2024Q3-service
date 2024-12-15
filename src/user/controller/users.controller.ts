@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 
 import { UsersService } from '../svc/users.service';
-import { CreateUserDto } from '../dto/create-user.dto';
+import { UserDto } from '../dto/create-user.dto';
 import { UpdatePasswordDto } from '../dto/update-password.dto';
 
 @Controller('user')
@@ -19,31 +19,31 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  getAllUsers() {
-    return this.usersService.findAll();
+  async getAllUsers() {
+    return await this.usersService.findAll();
   }
 
   @Get(':id')
-  getUserById(@Param('id') id: string) {
-    return this.usersService.findById(id);
+  async getUserById(@Param('id') id: string) {
+    return await this.usersService.findById(id);
   }
 
   @Post()
-  createUser(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  async createUser(@Body() createUserDto: UserDto) {
+    return await this.usersService.create(createUserDto);
   }
 
   @Put(':id')
-  updateUserPassword(
+  async updateUserPassword(
     @Param('id') id: string,
     @Body() updatePasswordDto: UpdatePasswordDto,
   ) {
-    return this.usersService.updatePassword(id, updatePasswordDto);
+    return await this.usersService.updatePassword(id, updatePasswordDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteUser(@Param('id') id: string) {
-    this.usersService.delete(id);
+  async deleteUser(@Param('id') id: string) {
+    await this.usersService.delete(id);
   }
 }

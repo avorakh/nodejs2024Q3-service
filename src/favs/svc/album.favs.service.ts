@@ -2,42 +2,40 @@ import { validate as isUuid } from 'uuid';
 import { FavoritesServiceInterface } from './favs.service.interface';
 import { Album } from '../../album/entity/album.interface';
 import { AlbumRepository } from '../../album/repository/album.repository';
-import { FavoriteIdRepository } from '../repository/favs.repository';
 import { FavoriteItemNotFoundException } from '../error/favirite.not.found.error';
 import { InvalidIDException } from '../../error/invalid.id.error';
 import { HttpStatus } from '@nestjs/common';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { FavoriteAlbumRepository } from '../repository/favs.album.repository';
+import { FavoriteAlbum } from '../entity/favorite.album.entity';
 
 @Injectable()
 export class AlbumFavoritesService implements FavoritesServiceInterface<Album> {
   constructor(
-    @Inject('AlbumRepository')
     private readonly albumRepository: AlbumRepository,
-    @Inject('AlbumFavoriteIdRepository')
-    private readonly albumFavoriteIdRepository: FavoriteIdRepository,
+    private readonly favoriteAlbumRepository: FavoriteAlbumRepository,
   ) {}
 
-  getAll(): Album[] {
-    const favoriteIds: string[] = this.albumFavoriteIdRepository.findAll();
+  async getAll(): Promise<Album[]> {
+    const favoriteAlbums: FavoriteAlbum[] =
+      await this.favoriteAlbumRepository.findAll();
 
-    return this.albumRepository
-      .findAll()
-      .filter((foundAlbum) => favoriteIds.includes(foundAlbum.id));
+    return favoriteAlbums.map((favoriteAlbum) => favoriteAlbum.album);
   }
 
-  addToFavorites(id: string): void {
+  async addToFavorites(id: string): Promise<void> {
     this.validateId(id);
-    const foundAlbum = this.albumRepository.findById(id);
+    const foundAlbum = await this.albumRepository.findById(id);
 
     if (!foundAlbum) {
       throw new FavoriteItemNotFoundException('Album not found');
     }
-    this.albumFavoriteIdRepository.create(id);
+    await this.favoriteAlbumRepository.create(id);
   }
 
-  deleteFromFavorites(id: string): void {
+  async deleteFromFavorites(id: string): Promise<void> {
     this.validateId(id);
-    const foundAlbum = this.albumRepository.findById(id);
+    const foundAlbum = await this.albumRepository.findById(id);
 
     if (!foundAlbum) {
       throw new FavoriteItemNotFoundException(
@@ -45,7 +43,7 @@ export class AlbumFavoritesService implements FavoritesServiceInterface<Album> {
         HttpStatus.NOT_FOUND,
       );
     }
-    this.albumFavoriteIdRepository.delete(id);
+    await this.favoriteAlbumRepository.delete(id);
   }
 
   private validateId(id: string) {
